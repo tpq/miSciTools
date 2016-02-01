@@ -17,9 +17,9 @@ lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
     warning("Check 'genome(object)' to make sure you selected correct 'over.chain' directory.")
   }
   
+  over.chain <- paste0(from, "To", capitalize(to), ".over.chain.gz")
   cat("Downloading", over.chain, "as temporary file...\n")
-  url <- paste0("http://hgdownload.cse.ucsc.edu/goldenpath/", from, "/liftOver/",
-                from, "To", capitalize(to), ".over.chain.gz")
+  url <- paste0("http://hgdownload.cse.ucsc.edu/goldenpath/", from, "/liftOver/", over.chain)
   file.gz <- tempfile(fileext = ".over.chain.gz")
   download.file(url, file.gz)
   
