@@ -1,4 +1,135 @@
 ###########################################################
+### Functions to assist in proportionality analyses
+
+# Calculate phi from a data.frame of feature counts
+phit <- function(counts, symmetrize = FALSE){
+  
+  require(compositions)
+  
+  # Centered log-ratio transform count data matrix
+  counts.clr <- as.data.frame(clr(t(counts)))
+  
+  # Replace zeroes with next smallest number
+  counts[counts == 0] <- unique(sort(as.matrix(counts)))[2]
+  
+  # Calculate the variance of the log-ratio
+  counts.vlr <- variation(acomp(t(counts)))
+  colnames(counts.vlr) <- rownames(counts)
+  rownames(counts.vlr) <- rownames(counts)
+  
+  # Calculate var of clr transformed treatments
+  counts.clr.var <- apply(counts.clr, 2, var)
+  
+  # Sweep out clr transformed variance from vlr
+  counts.phi <- sweep(counts.vlr, 2, counts.clr.var, FUN = "/")
+  
+  # Symmetrize matrix if symmetrize = TRUE
+  if(symmetrize){
+    
+    for(j in 2:nrow(counts.phi)){
+      
+      for(i in 1:(j-1)){
+        
+        counts.phi[i, j] <- counts.phi[j, i]
+      }
+    }
+  }
+  
+  return(counts.phi)
+}
+
+# Retrieve the phi value for each pair of features
+phitRaw <- function(phi){
+  
+  index.i <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
+  index.j <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
+  index.phi <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
+  counter <- 1
+  
+  for(j in 2:nrow(phi)){
+    
+    for(i in 1:(j-1)){
+      
+      index.i[counter] <- i
+      index.j[counter] <- j
+      index.phi[counter] <- phi[j, i]
+      counter <- counter + 1
+    }
+  }
+  
+  result <- data.frame("Feature.1" = rownames(phi)[index.i],
+                       "Feature.1.index" = index.i,
+                       "Feature.2" = rownames(phi)[index.j],
+                       "Feature.2.index" = index.j,
+                       "phi" = index.phi,
+                       stringsAsFactors = FALSE)
+  
+  final <- result[order(result$phi),]
+  rownames(final) <- 1:nrow(final)
+  
+  return(final)
+}
+
+# Retrieve the lower triangle of a phi matrix
+phitTriangle <- function(phi){
+  
+  result <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
+  counter <- 1
+  
+  for(j in 2:nrow(phi)){
+    
+    for(i in 1:(j-1)){
+      
+      result[counter] <- phi[j, i]
+      counter <- counter + 1
+    }
+  }
+  
+  return(result)
+}
+
+# Calculate p(phi) based on a NULL distribution
+phitDistr <- function(counts, iter = 10, returnFDR = TRUE){
+  
+  distr <- vector("list", iter)
+  
+  for(i in 1:iter){
+    
+    cat(paste0("Calculating all phi for iter ", i, "...\n"))
+    null.i <- apply(counts, 2, sample)
+    phi.i <- phit(null.i)
+    distr[[i]] <- phitTriangle(phi.i)
+  }
+  
+  cat("Fitting phi to distribution...\n")
+  final <- unlist(distr)
+  fit <- ecdf(final)
+  
+  if(returnFDR){
+    
+    cat("Calculating all phi for actual counts...\n")
+    phi <- phit(counts)
+    raw <- phitRaw(phi)
+    
+    cat("Using 'fit' to convert phi into pval...\n")
+    pval <- fit(raw$phi)
+    cat("Correcting for multiple testing...\n")
+    fdr <- p.adjust(pval, method = "BH")
+    
+    cat("Building results...\n")
+    result <- data.frame(raw, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
+    final <- result[order(result$pval),]
+    rownames(final) <- 1:nrow(final)
+    
+    return(final)
+    
+  }else{
+    
+    return(fit)
+  }
+}
+
+###########################################################
 ### Functions to assist in genomic annotations
 
 # 'Lifts over' coordinates from one genome build to another
