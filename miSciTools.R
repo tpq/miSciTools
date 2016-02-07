@@ -2,7 +2,7 @@
 ### Functions to assist in proportionality analyses
 
 # Calculate phi from a data.frame of feature counts
-phit <- function(counts, symmetrize = FALSE){
+phit <- function(counts, symmetrize = TRUE){
   
   require(compositions)
   
@@ -89,7 +89,7 @@ phitTriangle <- function(phi){
 }
 
 # Calculate p(phi) based on a NULL distribution
-phitDistr <- function(counts, iter = 10, returnFDR = TRUE){
+phitDistr <- function(counts, iter = 10, returnPval = TRUE){
   
   distr <- vector("list", iter)
   
@@ -105,7 +105,7 @@ phitDistr <- function(counts, iter = 10, returnFDR = TRUE){
   final <- unlist(distr)
   fit <- ecdf(final)
   
-  if(returnFDR){
+  if(returnPval){
     
     cat("Calculating all phi for actual counts...\n")
     phi <- phit(counts)
