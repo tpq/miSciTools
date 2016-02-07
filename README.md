@@ -1,1 +1,1 @@
-# See miSciTools.txt for documentation
+# See tutorial.txt for documentation
