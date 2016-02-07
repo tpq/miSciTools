@@ -1,1 +1,1 @@
-# miSciTools tutorial pending
+# See miSciTools.txt for documentation
