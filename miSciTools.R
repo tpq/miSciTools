@@ -24,21 +24,56 @@ phit <- function(counts, symmetrize = TRUE){
   counts.phi <- sweep(counts.vlr, 2, counts.clr.var, FUN = "/")
   
   # Symmetrize matrix if symmetrize = TRUE
-  if(symmetrize){
-    
-    for(j in 2:nrow(counts.phi)){
-      
-      for(i in 1:(j-1)){
-        
-        counts.phi[i, j] <- counts.phi[j, i]
-      }
-    }
-  }
+  if(symmetrize) counts.phi <- phitSym(counts.phi)
   
   return(counts.phi)
 }
 
-# Retrieve the phi value for each pair of features
+# Calculate p(phi) based on a NULL distribution
+phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = TRUE){
+  
+  distr <- vector("numeric", iter * iterSize * (iterSize - 1) / 2)
+  
+  for(i in 1:iter){
+    
+    cat(paste0("Calculating all phi for iter ", i, "...\n"))
+    null.i <- apply(counts, 2, sample, iterSize)
+    phi.i <- phit(null.i)
+    begin <- (i - 1) * iter + 1
+    end <- (i - 1) * iter + iterSize * (iterSize - 1) / 2
+    distr[begin:end] <- phitTri(phi.i)
+    rm(phi.i)
+  }
+  
+  cat("Fitting phi to distribution...\n")
+  fit <- ecdf(distr)
+  rm(distr)
+  
+  if(returnPval){
+    
+    cat("Calculating all phi for actual counts...\n")
+    phi <- phit(counts)
+    raw <- phitRaw(phi)
+    
+    cat("Using 'fit' to convert phi into pval...\n")
+    pval <- fit(raw$phi)
+    cat("Correcting for multiple testing...\n")
+    fdr <- p.adjust(pval, method = "BH")
+    
+    cat("Building results...\n")
+    result <- data.frame(raw, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
+    final <- result[order(result$pval),]
+    rownames(final) <- 1:nrow(final)
+    
+    return(final)
+    
+  }else{
+    
+    return(fit)
+  }
+}
+
+# Retrieve phi for each feature pair
 phitRaw <- function(phi){
   
   index.i <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
@@ -71,7 +106,7 @@ phitRaw <- function(phi){
 }
 
 # Retrieve the lower triangle of a phi matrix
-phitTriangle <- function(phi){
+phitTri <- function(phi){
   
   result <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
   counter <- 1
@@ -88,45 +123,18 @@ phitTriangle <- function(phi){
   return(result)
 }
 
-# Calculate p(phi) based on a NULL distribution
-phitDistr <- function(counts, iter = 10, returnPval = TRUE){
+# Symmetrize a phi matrix
+phitSym <- function(phi){
   
-  distr <- vector("list", iter)
-  
-  for(i in 1:iter){
+  for(j in 2:nrow(phi)){
     
-    cat(paste0("Calculating all phi for iter ", i, "...\n"))
-    null.i <- apply(counts, 2, sample)
-    phi.i <- phit(null.i)
-    distr[[i]] <- phitTriangle(phi.i)
+    for(i in 1:(j-1)){
+      
+      phi[i, j] <- phi[j, i]
+    }
   }
   
-  cat("Fitting phi to distribution...\n")
-  final <- unlist(distr)
-  fit <- ecdf(final)
-  
-  if(returnPval){
-    
-    cat("Calculating all phi for actual counts...\n")
-    phi <- phit(counts)
-    raw <- phitRaw(phi)
-    
-    cat("Using 'fit' to convert phi into pval...\n")
-    pval <- fit(raw$phi)
-    cat("Correcting for multiple testing...\n")
-    fdr <- p.adjust(pval, method = "BH")
-    
-    cat("Building results...\n")
-    result <- data.frame(raw, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
-    final <- result[order(result$pval),]
-    rownames(final) <- 1:nrow(final)
-    
-    return(final)
-    
-  }else{
-    
-    return(fit)
-  }
+  return(phi)
 }
 
 ###########################################################
