@@ -39,8 +39,8 @@ phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = T
     cat(paste0("Calculating all phi for iter ", i, "...\n"))
     null.i <- apply(counts, 2, sample, iterSize)
     phi.i <- phit(null.i)
-    begin <- (i - 1) * iter + 1
-    end <- (i - 1) * iter + iterSize * (iterSize - 1) / 2
+    begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
+    end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
     distr[begin:end] <- phitTri(phi.i)
     rm(phi.i)
   }
