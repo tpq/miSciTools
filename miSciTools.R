@@ -6,21 +6,19 @@ phit <- function(counts, symmetrize = TRUE){
   
   require(compositions)
   
-  # Centered log-ratio transform count data matrix
-  counts.clr <- as.data.frame(clr(t(counts)))
-  
   # Replace zeroes with next smallest number
   counts[counts == 0] <- unique(sort(as.matrix(counts)))[2]
   
-  # Calculate the variance of the log-ratio
+  # Calculate the variance of the log-ratio ("variation array")
   counts.vlr <- variation(acomp(t(counts)))
   colnames(counts.vlr) <- rownames(counts)
   rownames(counts.vlr) <- rownames(counts)
   
-  # Calculate var of clr transformed treatments
+  # Calculate feature variance across clr transformed treatments
+  counts.clr <- as.data.frame(clr(t(counts)))
   counts.clr.var <- apply(counts.clr, 2, var)
   
-  # Sweep out clr transformed variance from vlr
+  # Sweep out feature clr variance from the variation array
   counts.phi <- sweep(counts.vlr, 2, counts.clr.var, FUN = "/")
   
   # Symmetrize matrix if symmetrize = TRUE
@@ -56,7 +54,7 @@ phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = T
     raw <- phitRaw(phi)
     
     cat("Using 'fit' to convert phi into pval...\n")
-    pval <- fit(raw$phi)
+    pval <- fit(raw$prop)
     cat("Correcting for multiple testing...\n")
     fdr <- p.adjust(pval, method = "BH")
     
@@ -73,7 +71,113 @@ phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = T
   }
 }
 
-# Retrieve phi for each feature pair
+# Calculates proportionality using p coefficient from Erb 2016
+# NOTE: IF 'ivar' = NULL, divide variation array by clr transformed variance
+# NOTE: ELSE, divide variation array by alr transformed variance
+perb <- function(counts, ivar = NULL){
+  
+  require(compositions)
+  
+  # Replace zeroes with next smallest number
+  counts[counts == 0] <- unique(sort(as.matrix(counts)))[2]
+  
+  # Calculate the variance of the log-ratio ("variation array")
+  counts.vlr <- variation(acomp(t(counts)))
+  colnames(counts.vlr) <- rownames(counts)
+  rownames(counts.vlr) <- rownames(counts)
+  
+  if(!is.null(ivar)){
+    
+    # Calculate feature variance across alr transformed treatments
+    counts.vlr <- counts.vlr[-ivar, -ivar] # returns one less dimension
+    counts.alr <- as.data.frame(alr(t(counts), ivar = ivar)) # returns one less dimension
+    counts.var <- apply(counts.alr, 2, var)
+    
+  }else{
+    
+    # Calculate feature variance across clr transformed treatments
+    counts.clr <- as.data.frame(clr(t(counts)))
+    counts.var <- apply(counts.clr, 2, var)
+  }
+  
+  # Divide variation array by sum of feature variances
+  for(i in 1:ncol(counts.vlr)){
+    for(j in 1:nrow(counts.vlr)){
+      counts.vlr[i, j] <- counts.vlr[i, j] / (counts.var[i] + counts.var[j])
+    }
+  }
+  
+  # Calculate: p = 1 - (var(x - y))/(var(x) + var(y))
+  counts.prop <- 1 - counts.vlr
+  
+  return(counts.prop)
+}
+
+# Calculate p(x) based on a NULL distribution of p from Erb 2016
+perbDistr <- function(counts, ivar = NULL, iter = 10, iterSize = nrow(counts) - !is.null(ivar), returnPval = TRUE){
+  
+  distr <- vector("numeric", iter * iterSize * (iterSize - 1) / 2)
+  
+  for(i in 1:iter){
+    
+    # Sample counts matrix
+    cat(paste0("Calculating all perb for iter ", i, "...\n"))
+    
+    # Handle alr properly
+    if(!is.null(ivar)){
+      
+      null.i <- apply(counts[-ivar, ], 2, sample, iterSize)
+      fixed <- counts[ivar, ]
+      null.i <- rbind(null.i, fixed)
+      ivar.i <- nrow(null.i)
+      
+    }else{
+      
+      null.i <- apply(counts, 2, sample, iterSize)
+      ivar.i <- NULL
+    }
+    
+    # Calculate perb matrix
+    perb.i <- perb(null.i, ivar.i)
+    begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
+    end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
+    
+    # Save lower triangle
+    distr[begin:end] <- phitTri(perb.i)
+    rm(perb.i)
+  }
+  
+  cat("Fitting phi to distribution...\n")
+  fit <- ecdf(distr)
+  rm(distr)
+  
+  if(returnPval){
+    
+    cat("Calculating all phi for actual counts...\n")
+    prop <- perb(counts, ivar = ivar)
+    raw <- phitRaw(prop)
+    
+    cat("Using 'fit' to convert phi into pval...\n")
+    pval <- fit(raw$prop)
+    pval[pval >= .5] <- 1 - pval[pval >= .5] # make 2-tails
+    pval <- pval * 2 # scale 0 to 1
+    cat("Correcting for multiple testing...\n")
+    fdr <- p.adjust(pval, method = "BH")
+    
+    cat("Building results...\n")
+    result <- data.frame(raw, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
+    final <- result[order(result$pval),]
+    rownames(final) <- 1:nrow(final)
+    
+    return(final)
+    
+  }else{
+    
+    return(fit)
+  }
+}
+
+# Retrieve phi (or p) for each feature pair as data.frame
 phitRaw <- function(phi){
   
   index.i <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
@@ -96,16 +200,16 @@ phitRaw <- function(phi){
                        "Feature.1.index" = index.i,
                        "Feature.2" = rownames(phi)[index.j],
                        "Feature.2.index" = index.j,
-                       "phi" = index.phi,
+                       "prop" = index.phi,
                        stringsAsFactors = FALSE)
   
-  final <- result[order(result$phi),]
+  final <- result[order(result$prop),]
   rownames(final) <- 1:nrow(final)
   
   return(final)
 }
 
-# Retrieve the lower triangle of a phi matrix
+# Retrieve the lower triangle of a phi (or p) matrix
 phitTri <- function(phi){
   
   result <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
@@ -123,7 +227,7 @@ phitTri <- function(phi){
   return(result)
 }
 
-# Symmetrize a phi matrix
+# Symmetrize the asymmetric phi matrix
 phitSym <- function(phi){
   
   for(j in 2:nrow(phi)){
