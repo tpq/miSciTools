@@ -22,7 +22,7 @@ phit <- function(counts, symmetrize = TRUE){
   counts.phi <- sweep(counts.vlr, 2, counts.clr.var, FUN = "/")
   
   # Symmetrize matrix if symmetrize = TRUE
-  if(symmetrize) counts.phi <- phitSym(counts.phi)
+  if(symmetrize) counts.phi <- propSym(counts.phi)
   
   return(counts.phi)
 }
@@ -39,7 +39,7 @@ phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = T
     phi.i <- phit(null.i)
     begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
     end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
-    distr[begin:end] <- phitTri(phi.i)
+    distr[begin:end] <- propTri(phi.i)
     rm(phi.i)
   }
   
@@ -51,7 +51,7 @@ phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = T
     
     cat("Calculating all phi for actual counts...\n")
     phi <- phit(counts)
-    raw <- phitRaw(phi)
+    raw <- propRaw(phi)
     
     cat("Using 'fit' to convert phi into pval...\n")
     pval <- fit(raw$prop)
@@ -143,7 +143,7 @@ perbDistr <- function(counts, ivar = NULL, iter = 10, iterSize = nrow(counts) - 
     end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
     
     # Save lower triangle
-    distr[begin:end] <- phitTri(perb.i)
+    distr[begin:end] <- propTri(perb.i)
     rm(perb.i)
   }
   
@@ -155,7 +155,7 @@ perbDistr <- function(counts, ivar = NULL, iter = 10, iterSize = nrow(counts) - 
     
     cat("Calculating all phi for actual counts...\n")
     prop <- perb(counts, ivar = ivar)
-    raw <- phitRaw(prop)
+    raw <- propRaw(prop)
     
     cat("Using 'fit' to convert phi into pval...\n")
     pval <- fit(raw$prop)
@@ -178,29 +178,27 @@ perbDistr <- function(counts, ivar = NULL, iter = 10, iterSize = nrow(counts) - 
 }
 
 # Retrieve phi (or p) for each feature pair as data.frame
-phitRaw <- function(phi){
+propRaw <- function(prop){
   
-  index.i <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
-  index.j <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
-  index.phi <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
+  index.i <- vector("numeric", length = (nrow(prop) - 1)*nrow(prop)/2)
+  index.j <- vector("numeric", length = (nrow(prop) - 1)*nrow(prop)/2)
+  index.prop <- vector("numeric", length = (nrow(prop) - 1)*nrow(prop)/2)
   counter <- 1
   
-  for(j in 2:nrow(phi)){
+  for(j in 2:nrow(prop)){
     
     for(i in 1:(j-1)){
       
       index.i[counter] <- i
       index.j[counter] <- j
-      index.phi[counter] <- phi[j, i]
+      index.prop[counter] <- prop[j, i]
       counter <- counter + 1
     }
   }
   
-  result <- data.frame("Feature.1" = rownames(phi)[index.i],
-                       "Feature.1.index" = index.i,
-                       "Feature.2" = rownames(phi)[index.j],
-                       "Feature.2.index" = index.j,
-                       "prop" = index.phi,
+  result <- data.frame("feature1" = rownames(prop)[index.i],
+                       "feature2" = rownames(prop)[index.j],
+                       "prop" = index.prop,
                        stringsAsFactors = FALSE)
   
   final <- result[order(result$prop),]
@@ -210,16 +208,16 @@ phitRaw <- function(phi){
 }
 
 # Retrieve the lower triangle of a phi (or p) matrix
-phitTri <- function(phi){
+propTri <- function(prop){
   
-  result <- vector("numeric", length = (nrow(phi) - 1)*nrow(phi)/2)
+  result <- vector("numeric", length = (nrow(prop) - 1)*nrow(prop)/2)
   counter <- 1
   
-  for(j in 2:nrow(phi)){
+  for(j in 2:nrow(prop)){
     
     for(i in 1:(j-1)){
       
-      result[counter] <- phi[j, i]
+      result[counter] <- prop[j, i]
       counter <- counter + 1
     }
   }
@@ -228,17 +226,17 @@ phitTri <- function(phi){
 }
 
 # Symmetrize the asymmetric phi matrix
-phitSym <- function(phi){
+propSym <- function(prop){
   
-  for(j in 2:nrow(phi)){
+  for(j in 2:nrow(prop)){
     
     for(i in 1:(j-1)){
       
-      phi[i, j] <- phi[j, i]
+      prop[i, j] <- prop[j, i]
     }
   }
   
-  return(phi)
+  return(prop)
 }
 
 ###########################################################
