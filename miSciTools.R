@@ -442,6 +442,21 @@ demand <- function(package){
   }
 }
 
+# NOTE: Supply fx as e.g. maxRAM(function() vlr(t(counts)))
+maxRAM <- function(fx){
+  
+  start <- gc(reset = TRUE)
+  start <- start["Vcells", 6]
+  run <- fx
+  run()
+  end <- gc(TRUE)
+  end <- end["Vcells", 6]
+  final <- end - start
+  names(final) <- "max.Mb"
+  gc(reset = TRUE)
+  return(final)
+}
+
 # Saves a character string as R script
 # NOTE: Returns script location
 writeR <- function(R, folder = tempdir(), file = paste0(basename(folder), ".R")){
