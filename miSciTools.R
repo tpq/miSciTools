@@ -1,69 +1,79 @@
 ###########################################################
 ### Functions to assist in proportionality analyses
 
-# Calculate phi from a data.frame of feature counts
-phit <- function(counts, symmetrize = TRUE){
-  
-  require(compositions)
-  
-  # Replace zeroes with next smallest number
-  counts[counts == 0] <- unique(sort(as.matrix(counts)))[2]
-  
-  # Calculate the variance of the log-ratio ("variation array")
-  counts.vlr <- variation(acomp(t(counts)))
-  colnames(counts.vlr) <- rownames(counts)
-  rownames(counts.vlr) <- rownames(counts)
-  
-  # Calculate feature variance across clr transformed treatments
-  counts.clr <- as.data.frame(clr(t(counts)))
-  counts.clr.var <- apply(counts.clr, 2, var)
-  
-  # Sweep out feature clr variance from the variation array
-  counts.phi <- sweep(counts.vlr, 2, counts.clr.var, FUN = "/")
-  
-  # Symmetrize matrix if symmetrize = TRUE
-  if(symmetrize) counts.phi <- propSym(counts.phi)
-  
-  return(counts.phi)
-}
+setClass("propr",
+         slots = c(
+           counts = "data.frame",
+           matrix = "matrix",
+           pairs = "data.frame"
+         )
+)
 
-# Calculate p(phi) based on a NULL distribution
-phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = TRUE){
+
+setMethod("show", "propr",
+          function(object){
+            
+            cat("@counts summary:",
+                nrow(object@counts), "features by", ncol(object@counts), "subjects\n")
+            
+            cat("@matrix summary:",
+                nrow(object@matrix), "features by", ncol(object@matrix), "features\n")
+            
+            cat("@pairs summary:",
+                nrow(object@pairs), "feature pairs\n")
+          }
+)
+
+# Calculate phi and its empiric probability using a NULL distribution
+phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), onlyDistr = FALSE){
+  
+  if(!onlyDistr){
+    
+    cat("Calculating all phi for actual counts...\n")
+    prop <- new("propr")
+    prop@counts <- as.data.frame(counts)
+    prop@matrix <- proprPhit(prop@counts, symmetrize)
+    prop@pairs <- proprPairs(prop@matrix)
+    if(iter == 0) return(prop)
+    
+  }else{
+    
+    if(iter == 0){
+      
+      stop("This function cannot return a fit distribution if iter = 0!")
+    }
+  }
   
   distr <- vector("numeric", iter * iterSize * (iterSize - 1) / 2)
-  
   for(i in 1:iter){
     
-    cat(paste0("Calculating all phi for iter ", i, "...\n"))
-    null.i <- apply(counts, 2, sample, iterSize)
-    phi.i <- phit(null.i)
+    cat(paste0("Calculating simulated phi for iter ", i, "...\n"))
+    null.i <- apply(prop@counts, 2, sample, iterSize)
+    prop.i <- proprPhit(null.i)
     begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
     end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
-    distr[begin:end] <- propTri(phi.i)
-    rm(phi.i)
+    distr[begin:end] <- proprTri(prop.i)
+    rm(prop.i)
   }
   
   cat("Fitting phi to distribution...\n")
   fit <- ecdf(distr)
   rm(distr)
   
-  if(returnPval){
+  if(!onlyDistr){
     
-    cat("Calculating all phi for actual counts...\n")
-    phi <- phit(counts)
-    raw <- propRaw(phi)
+    cat("Using fit to convert phi into pval...\n")
+    pval <- fit(prop@pairs$prop)
     
-    cat("Using 'fit' to convert phi into pval...\n")
-    pval <- fit(raw$prop)
     cat("Correcting for multiple testing...\n")
     fdr <- p.adjust(pval, method = "BH")
     
     cat("Building results...\n")
-    result <- data.frame(raw, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
-    final <- result[order(result$pval),]
-    rownames(final) <- 1:nrow(final)
+    prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
+    prop@pairs <- prop@pairs[order(prop@pairs$pval),]
+    rownames(prop@pairs) <- 1:nrow(prop@pairs)
     
-    return(final)
+    return(prop)
     
   }else{
     
@@ -71,32 +81,133 @@ phitDistr <- function(counts, iter = 10, iterSize = nrow(counts), returnPval = T
   }
 }
 
-# Calculates proportionality using p coefficient from Erb 2016
-# NOTE: IF 'ivar' = NULL, divide variation array by clr transformed variance
-# NOTE: ELSE, divide variation array by alr transformed variance
-perb <- function(counts, ivar = NULL){
+# Calculate Erb's p and its empiric probability using a NULL distribution
+perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0), onlyDistr = FALSE){
   
-  require(compositions)
+  if(!onlyDistr){
+    
+    cat("Calculating all perb for actual counts...\n")
+    prop <- new("propr")
+    prop@counts <- as.data.frame(counts)
+    prop@matrix <- proprPerb(prop@counts, ivar)
+    prop@pairs <- proprPairs(prop@matrix)
+    
+    if(iter == 0){
+      
+      prop@pairs <- prop@pairs[rev(order(abs(prop@pairs$prop))), ]
+      rownames(prop@pairs) <- 1:nrow(prop@pairs)
+      return(prop)
+    }
+    
+  }else{
+    
+    if(iter == 0){
+      
+      stop("This function cannot return a fit distribution if iter = 0!")
+    }
+  }
+  
+  distr <- vector("numeric", iter * iterSize * (iterSize - 1) / 2)
+  for(i in 1:iter){
+    
+    cat(paste0("Calculating simulated phi for iter ", i, "...\n"))
+    
+    # Handle alr properly
+    if(ivar != 0){
+      
+      null.i <- apply(prop@counts[-ivar, ], 2, sample, iterSize)
+      fixed <- prop@counts[ivar, ]
+      null.i <- rbind(null.i, fixed)
+      ivar.i <- nrow(null.i)
+      
+    }else{
+      
+      null.i <- apply(prop@counts, 2, sample, iterSize)
+      ivar.i <- NULL
+    }
+    
+    prop.i <- proprPerb(null.i, ivar.i)
+    begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
+    end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
+    distr[begin:end] <- proprTri(prop.i)
+    rm(prop.i)
+  }
+  
+  cat("Fitting phi to distribution...\n")
+  fit <- ecdf(distr)
+  rm(distr)
+  
+  if(!onlyDistr){
+    
+    cat("Using fit to convert phi into pval...\n")
+    pval <- fit(prop@pairs$prop)
+    pval[pval >= .5] <- 1 - pval[pval >= .5] # make 2-tails
+    pval <- pval * 2 # scale 0 to 1
+    
+    cat("Correcting for multiple testing...\n")
+    fdr <- p.adjust(pval, method = "BH")
+    
+    cat("Building results...\n")
+    prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
+    prop@pairs <- prop@pairs[order(prop@pairs$pval),]
+    rownames(prop@pairs) <- 1:nrow(prop@pairs)
+    
+    return(prop)
+    
+  }else{
+    
+    return(fit)
+  }
+}
+
+# Calculate phi from a data.frame of feature counts
+proprPhit <- function(counts, symmetrize = TRUE){
   
   # Replace zeroes with next smallest number
   counts[counts == 0] <- unique(sort(as.matrix(counts)))[2]
   
   # Calculate the variance of the log-ratio ("variation array")
-  counts.vlr <- variation(acomp(t(counts)))
+  counts.vlr <- proprVLR(t(counts))
   colnames(counts.vlr) <- rownames(counts)
   rownames(counts.vlr) <- rownames(counts)
   
-  if(!is.null(ivar)){
+  # Calculate feature variance across clr transformed treatments
+  counts.clr <- proprCLR(t(counts))
+  counts.clr.var <- apply(counts.clr, 2, var)
+  
+  # Sweep out feature clr variance from the variation array
+  counts.phi <- sweep(counts.vlr, 2, counts.clr.var, FUN = "/")
+  
+  # Symmetrize matrix if symmetrize = TRUE
+  if(symmetrize) counts.phi <- proprSym(counts.phi)
+  
+  return(counts.phi)
+}
+
+# Calculates proportionality using p coefficient from Erb 2016
+# NOTE: IF 'ivar' = NULL, divide variation array by clr transformed variance
+# NOTE: ELSE, divide variation array by alr transformed variance
+proprPerb <- function(counts, ivar = 0){
+  
+  # Replace zeroes with next smallest number
+  counts[counts == 0] <- unique(sort(as.matrix(counts)))[2]
+  
+  # Calculate the variance of the log-ratio ("variation array")
+  counts.vlr <- proprVLR(t(counts))
+  colnames(counts.vlr) <- rownames(counts)
+  rownames(counts.vlr) <- rownames(counts)
+  
+  if(ivar != 0){
     
     # Calculate feature variance across alr transformed treatments
     counts.vlr <- counts.vlr[-ivar, -ivar] # returns one less dimension
-    counts.alr <- as.data.frame(alr(t(counts), ivar = ivar)) # returns one less dimension
+    counts.alr <- proprALR(t(counts), ivar = ivar) # returns one less dimension
     counts.var <- apply(counts.alr, 2, var)
     
   }else{
     
     # Calculate feature variance across clr transformed treatments
-    counts.clr <- as.data.frame(clr(t(counts)))
+    counts.clr <- proprCLR(t(counts))
     counts.var <- apply(counts.clr, 2, var)
   }
   
@@ -113,72 +224,50 @@ perb <- function(counts, ivar = NULL){
   return(counts.prop)
 }
 
-# Calculate p(x) based on a NULL distribution of p from Erb 2016
-perbDistr <- function(counts, ivar = NULL, iter = 10, iterSize = nrow(counts) - !is.null(ivar), returnPval = TRUE){
+# Calculate VLR without use of 'compositions' package
+proprVLR <- function(X, check = FALSE){
   
-  distr <- vector("numeric", iter * iterSize * (iterSize - 1) / 2)
-  
-  for(i in 1:iter){
+  if(check){
     
-    # Sample counts matrix
-    cat(paste0("Calculating all perb for iter ", i, "...\n"))
-    
-    # Handle alr properly
-    if(!is.null(ivar)){
-      
-      null.i <- apply(counts[-ivar, ], 2, sample, iterSize)
-      fixed <- counts[ivar, ]
-      null.i <- rbind(null.i, fixed)
-      ivar.i <- nrow(null.i)
-      
-    }else{
-      
-      null.i <- apply(counts, 2, sample, iterSize)
-      ivar.i <- NULL
-    }
-    
-    # Calculate perb matrix
-    perb.i <- perb(null.i, ivar.i)
-    begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
-    end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
-    
-    # Save lower triangle
-    distr[begin:end] <- propTri(perb.i)
-    rm(perb.i)
+    if(any(X < 0))    stop("negative values found")
+    if(any(is.na(X))) stop("NA values found")
   }
   
-  cat("Fitting phi to distribution...\n")
-  fit <- ecdf(distr)
-  rm(distr)
+  logX <- log(X)
+  Cov    <- stats::var(logX)  ## Note the avoidance of compositions::var
+  D      <- ncol(logX)
+  VarCol <- matrix(rep(diag(Cov), D), ncol = D)
+  return(-2 * Cov + VarCol + t(VarCol))
+}
+
+# Calculate CLR without use of 'compositions' package
+proprCLR <- function(X, check = FALSE){
   
-  if(returnPval){
+  if(check){
     
-    cat("Calculating all phi for actual counts...\n")
-    prop <- perb(counts, ivar = ivar)
-    raw <- propRaw(prop)
-    
-    cat("Using 'fit' to convert phi into pval...\n")
-    pval <- fit(raw$prop)
-    pval[pval >= .5] <- 1 - pval[pval >= .5] # make 2-tails
-    pval <- pval * 2 # scale 0 to 1
-    cat("Correcting for multiple testing...\n")
-    fdr <- p.adjust(pval, method = "BH")
-    
-    cat("Building results...\n")
-    result <- data.frame(raw, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
-    final <- result[order(result$pval),]
-    rownames(final) <- 1:nrow(final)
-    
-    return(final)
-    
-  }else{
-    
-    return(fit)
+    if(any(X < 0))    stop("negative values found")
+    if(any(is.na(X))) stop("NA values found")
   }
+  
+  logX <- log(X)
+  return(sweep(logX, 1, rowMeans(logX), "-")) # subtract out the means
+}
+
+# Calculate ALR without use of 'compositions' package
+proprALR <- function(X, ivar, check = FALSE){
+  
+  if(check){
+    
+    if(any(X < 0))    stop("negative values found")
+    if(any(is.na(X))) stop("NA values found")
+  }
+  
+  logX <- log(X[, -ivar])
+  return(sweep(logX, 1, log(X[, ivar]), "-")) # subtract out the ivar
 }
 
 # Retrieve phi (or p) for each feature pair as data.frame
-propRaw <- function(prop){
+proprPairs <- function(prop){
   
   index.i <- vector("numeric", length = (nrow(prop) - 1)*nrow(prop)/2)
   index.j <- vector("numeric", length = (nrow(prop) - 1)*nrow(prop)/2)
@@ -208,7 +297,7 @@ propRaw <- function(prop){
 }
 
 # Retrieve the lower triangle of a phi (or p) matrix
-propTri <- function(prop){
+proprTri <- function(prop){
   
   result <- vector("numeric", length = (nrow(prop) - 1)*nrow(prop)/2)
   counter <- 1
@@ -226,7 +315,7 @@ propTri <- function(prop){
 }
 
 # Symmetrize the asymmetric phi matrix
-propSym <- function(prop){
+proprSym <- function(prop){
   
   for(j in 2:nrow(prop)){
     
