@@ -9,7 +9,6 @@ setClass("propr",
          )
 )
 
-
 setMethod("show", "propr",
           function(object){
             
