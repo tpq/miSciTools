@@ -23,6 +23,23 @@ setMethod("show", "propr",
           }
 )
 
+setMethod('$', signature(x = "propr"),
+          function(x, name){
+            
+            return(x@pairs[, name])
+          }
+)
+
+setMethod('[', signature(x = "propr"),
+          function(x, i, j, drop){
+            
+            x@pairs <- x@pairs[i, j, drop]
+            index <- unique(c(x@pairs$feature1, x@pairs$feature2))
+            x@matrix <- x@matrix[index, index]
+            return(x)
+          }
+)
+
 # Calculate phi and its empiric probability using a NULL distribution
 phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), onlyDistr = FALSE){
   
@@ -47,8 +64,8 @@ phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), o
   for(i in 1:iter){
     
     cat(paste0("Calculating simulated phi for iter ", i, "...\n"))
-    null.i <- apply(prop@counts, 2, sample, iterSize)
-    prop.i <- proprPhit(null.i)
+    counts.i <- apply(counts, 2, sample, iterSize)
+    prop.i <- proprPhit(counts.i)
     begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
     end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
     distr[begin:end] <- proprTri(prop.i)
@@ -114,18 +131,18 @@ perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0
     # Handle alr properly
     if(ivar != 0){
       
-      null.i <- apply(prop@counts[-ivar, ], 2, sample, iterSize)
-      fixed <- prop@counts[ivar, ]
-      null.i <- rbind(null.i, fixed)
-      ivar.i <- nrow(null.i)
+      counts.i <- apply(counts[-ivar, ], 2, sample, iterSize)
+      fixed <- counts[ivar, ]
+      counts.i <- rbind(counts.i, fixed)
+      ivar.i <- nrow(counts.i)
       
     }else{
       
-      null.i <- apply(prop@counts, 2, sample, iterSize)
-      ivar.i <- NULL
+      counts.i <- apply(counts, 2, sample, iterSize)
+      ivar.i <- 0
     }
     
-    prop.i <- proprPerb(null.i, ivar.i)
+    prop.i <- proprPerb(counts.i, ivar.i)
     begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
     end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
     distr[begin:end] <- proprTri(prop.i)
@@ -184,7 +201,7 @@ proprPhit <- function(counts, symmetrize = TRUE){
 }
 
 # Calculates proportionality using p coefficient from Erb 2016
-# NOTE: IF 'ivar' = NULL, divide variation array by clr transformed variance
+# NOTE: IF 'ivar' = 0, divide variation array by clr transformed variance
 # NOTE: ELSE, divide variation array by alr transformed variance
 proprPerb <- function(counts, ivar = 0){
   
@@ -530,8 +547,8 @@ demand <- function(package){
   }
 }
 
-# NOTE: Supply fx as e.g. maxRAM(function() vlr(t(counts)))
-maxRAM <- function(fx){
+# NOTE: Supply fx as e.g. peakRAM(function() vlr(t(counts)))
+peakRAM <- function(fx){
   
   start <- gc(reset = TRUE)
   start <- start["Vcells", 6]
