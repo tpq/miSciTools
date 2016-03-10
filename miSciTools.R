@@ -35,6 +35,7 @@ setMethod('[', signature(x = "propr"),
             
             x@pairs <- x@pairs[i, j, drop]
             index <- unique(c(x@pairs$feature1, x@pairs$feature2))
+            x@counts <- x@counts[index, ]
             x@matrix <- x@matrix[index, index]
             return(x)
           }
@@ -85,7 +86,7 @@ phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), o
     fdr <- p.adjust(pval, method = "BH")
     
     cat("Building results...\n")
-    prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
+    prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr" = fdr, stringsAsFactors = FALSE)
     prop@pairs <- prop@pairs[order(prop@pairs$pval),]
     rownames(prop@pairs) <- 1:nrow(prop@pairs)
     
@@ -164,7 +165,7 @@ perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0
     fdr <- p.adjust(pval, method = "BH")
     
     cat("Building results...\n")
-    prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr.BH" = fdr, stringsAsFactors = FALSE)
+    prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr" = fdr, stringsAsFactors = FALSE)
     prop@pairs <- prop@pairs[order(prop@pairs$pval),]
     rownames(prop@pairs) <- 1:nrow(prop@pairs)
     
