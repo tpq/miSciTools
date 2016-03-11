@@ -4,6 +4,7 @@
 setClass("propr",
          slots = c(
            counts = "data.frame",
+           logratio = "data.frame",
            matrix = "matrix",
            pairs = "data.frame"
          )
@@ -14,6 +15,9 @@ setMethod("show", "propr",
             
             cat("@counts summary:",
                 nrow(object@counts), "features by", ncol(object@counts), "subjects\n")
+            
+            cat("@logratio summary:",
+                nrow(object@logratio), "features by", ncol(object@logratio), "subjects\n")
             
             cat("@matrix summary:",
                 nrow(object@matrix), "features by", ncol(object@matrix), "features\n")
@@ -35,8 +39,22 @@ setMethod('[', signature(x = "propr"),
             
             x@pairs <- x@pairs[i, j, drop]
             index <- unique(c(x@pairs$feature1, x@pairs$feature2))
-            x@counts <- x@counts[index, ]
             x@matrix <- x@matrix[index, index]
+            x@logratio <- x@logratio[index, ]
+            x@counts <- x@counts[index, ]
+            
+            return(x)
+          }
+)
+
+setMethod("subset", signature(x = "propr"),
+          function(x, subset){
+            
+            x@counts <- x@counts[subset, ]
+            x@logratio <- x@logratio[subset, ]
+            x@matrix <- x@matrix[subset, subset]
+            x@pairs <- proprPairs(x@matrix)
+            
             return(x)
           }
 )
@@ -49,6 +67,7 @@ phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), o
     cat("Calculating all phi for actual counts...\n")
     prop <- new("propr")
     prop@counts <- as.data.frame(counts)
+    prop@logratio <- as.data.frame(t(proprCLR(t(prop@counts))))
     prop@matrix <- proprPhit(prop@counts, symmetrize)
     prop@pairs <- proprPairs(prop@matrix)
     if(iter == 0) return(prop)
@@ -106,6 +125,8 @@ perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0
     cat("Calculating all perb for actual counts...\n")
     prop <- new("propr")
     prop@counts <- as.data.frame(counts)
+    if(ivar != 0){ prop@logratio <- as.data.frame(t(proprALR(t(prop@counts), ivar)))
+    }else{ prop@logratio <- as.data.frame(t(proprCLR(t(prop@counts))))}
     prop@matrix <- proprPerb(prop@counts, ivar)
     prop@pairs <- proprPairs(prop@matrix)
     
