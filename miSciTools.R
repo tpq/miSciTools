@@ -37,13 +37,20 @@ setMethod('$', signature(x = "propr"),
 setMethod('[', signature(x = "propr"),
           function(x, i, j, drop){
             
-            x@pairs <- x@pairs[i, j, drop]
-            index <- unique(c(x@pairs$feature1, x@pairs$feature2))
-            x@matrix <- x@matrix[index, index]
-            x@logratio <- x@logratio[index, ]
-            x@counts <- x@counts[index, ]
-            
-            return(x)
+            if(!missing(j)){
+              
+              return(x@pairs[i, j, drop])
+              
+            }else{
+              
+              x@pairs <- x@pairs[i, j, drop]
+              index <- unique(c(x@pairs$feature1, x@pairs$feature2))
+              x@matrix <- x@matrix[index, index]
+              x@logratio <- x@logratio[index, ]
+              x@counts <- x@counts[index, ]
+              
+              return(x)
+            }
           }
 )
 
@@ -60,7 +67,7 @@ setMethod("subset", signature(x = "propr"),
 )
 
 # Calculate phi and its empiric probability using a NULL distribution
-phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), onlyDistr = FALSE){
+phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), iterHow = 1, onlyDistr = FALSE){
   
   if(!onlyDistr){
     
@@ -84,7 +91,21 @@ phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), o
   for(i in 1:iter){
     
     cat(paste0("Calculating simulated phi for iter ", i, "...\n"))
-    counts.i <- apply(counts, 2, sample, iterSize)
+    
+    if(iterHow == 1){
+      
+      index.i <- sample(1:nrow(counts), iterSize)
+      counts.i <- t(apply(counts[index.i, ], 1, sample))
+      
+    }else if(iterHow == 2){
+      
+      counts.i <- apply(counts, 2, sample, iterSize)
+      
+    }else{
+      
+      stop("Uh oh! Provided 'iterHow' not recognized! Select '1' for features and '2' for subject.")
+    }
+    
     prop.i <- proprPhit(counts.i)
     begin <- (i - 1) * iterSize * (iterSize - 1) / 2 + 1
     end <- (i - 1) * iterSize * (iterSize - 1) / 2 + iterSize * (iterSize - 1) / 2
@@ -118,7 +139,7 @@ phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), o
 }
 
 # Calculate Erb's p and its empiric probability using a NULL distribution
-perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0), onlyDistr = FALSE){
+perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0), iterHow = 1, onlyDistr = FALSE){
   
   if(!onlyDistr){
     
@@ -153,14 +174,40 @@ perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0
     # Handle alr properly
     if(ivar != 0){
       
-      counts.i <- apply(counts[-ivar, ], 2, sample, iterSize)
+      if(iterHow == 1){
+        
+        index.i <- sample(1:nrow(counts[-ivar, ]), iterSize)
+        counts.i <- t(apply(counts[-ivar, ][index.i, ], 1, sample))
+        
+      }else if(iterHow == 2){
+        
+        counts.i <- apply(counts[-ivar, ], 2, sample, iterSize)
+        
+      }else{
+        
+        stop("Uh oh! Provided 'iterHow' not recognized! Select '1' for features and '2' for subject.")
+      }
+      
       fixed <- counts[ivar, ]
       counts.i <- rbind(counts.i, fixed)
       ivar.i <- nrow(counts.i)
       
     }else{
       
-      counts.i <- apply(counts, 2, sample, iterSize)
+      if(iterHow == 1){
+        
+        index.i <- sample(1:nrow(counts), iterSize)
+        counts.i <- t(apply(counts[index.i, ], 1, sample))
+        
+      }else if(iterHow == 2){
+        
+        counts.i <- apply(counts, 2, sample, iterSize)
+        
+      }else{
+        
+        stop("Uh oh! Provided 'iterHow' not recognized! Select '1' for features and '2' for subject.")
+      }
+      
       ivar.i <- 0
     }
     
