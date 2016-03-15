@@ -127,7 +127,7 @@ phit <- function(counts, symmetrize = TRUE, iter = 0, iterSize = nrow(counts), i
     
     cat("Building results...\n")
     prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr" = fdr, stringsAsFactors = FALSE)
-    prop@pairs <- prop@pairs[order(prop@pairs$pval),]
+    prop@pairs <- prop@pairs[order(prop@pairs$pval), ]
     rownames(prop@pairs) <- 1:nrow(prop@pairs)
     
     return(prop)
@@ -151,12 +151,9 @@ perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0
     prop@matrix <- proprPerb(prop@counts, ivar)
     prop@pairs <- proprPairs(prop@matrix)
     
-    if(iter == 0){
-      
-      prop@pairs <- prop@pairs[rev(order(abs(prop@pairs$prop))), ]
-      rownames(prop@pairs) <- 1:nrow(prop@pairs)
-      return(prop)
-    }
+    prop@pairs <- prop@pairs[rev(order(abs(prop@pairs$prop))), ]
+    rownames(prop@pairs) <- 1:nrow(prop@pairs)
+    if(iter == 0) return(prop)
     
   }else{
     
@@ -219,23 +216,22 @@ perb <- function(counts, ivar = 0, iter = 0, iterSize = nrow(counts) - (ivar > 0
   }
   
   cat("Fitting phi to distribution...\n")
-  fit <- ecdf(distr)
+  fit <- ecdf(1 - abs(distr))
   rm(distr)
   
   if(!onlyDistr){
     
     cat("Using fit to convert phi into pval...\n")
-    pval <- fit(prop@pairs$prop)
-    pval[pval >= .5] <- 1 - pval[pval >= .5] # make 2-tails
-    pval <- pval * 2 # scale 0 to 1
+    pval <- fit(1 - abs(prop@pairs$prop))
+    # pval[pval >= .5] <- 1 - pval[pval >= .5] # make 2-tails
+    # pval <- pval * 2 # scale 0 to 1
     
     cat("Correcting for multiple testing...\n")
     fdr <- p.adjust(pval, method = "BH")
     
     cat("Building results...\n")
     prop@pairs <- data.frame(prop@pairs, "pval" = pval, "fdr" = fdr, stringsAsFactors = FALSE)
-    prop@pairs <- prop@pairs[order(prop@pairs$pval),]
-    rownames(prop@pairs) <- 1:nrow(prop@pairs)
+    # prop@pairs <- prop@pairs[order(prop@pairs$pval), ]
     
     return(prop)
     
@@ -375,7 +371,7 @@ proprPairs <- function(prop){
                        "prop" = index.prop,
                        stringsAsFactors = FALSE)
   
-  final <- result[order(result$prop),]
+  final <- result[order(result$prop), ]
   rownames(final) <- 1:nrow(final)
   
   return(final)
