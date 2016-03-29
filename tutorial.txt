@@ -1,26 +1,4 @@
 ###########################################################
-### Functions to assist in proportionality analyses
-
-'phit' - Let x represent any number of features measured across multiple biological replicates subjected to a binary or continuous event y. For example, y could represent case-control status, treatment status, treatment dose, or time. This function converts a "count matrix" with x rows and y columns into a proportionality matrix of x rows and x columns containing \phi measurements for each feature pair. One can think of this matrix as equivalent to a distance matrix, except that it has no symmetry by default.
-* counts: a "count matrix" as described above
-* symmetrize: if TRUE, forces symmetry by copying the "lower left triangle" to the top right
-
-'phitDistr' - This function generates a null distribution of \phi-values based on a "count matrix" by iteratively randomizing each feature vector, fitting {x * (x-1) / 2} \phi-values per iteration to an empiric distribution. If the user provides the argument "returnFDR = TRUE", this function will call 'phit' on the unaltered "count matrix" and use the empiric distribution to convert the computed \phi into p-values. Two p-value corrections-gene weighted p-value correction ({p-value / x}) and Benjamini-Hochberg FDR correction-get returned along with the raw \phi-values. Although provided for good measure, we note here that the Benjamini-Hochberg correction provides an overly conservative FDR because computed \phi-values have considerable dependence on one another.
-* counts: a "count matrix" as described above
-* iter: the number of iterations used to fit {x * (x-1) / 2 * iter} \phi-values to an empiric distribution
-* iterCount: sets the number of features to fit during each iteration
-* returnPval: if TRUE, uses empiric distribution to calculate p-values from phi
-
-'phitRaw' - Provided for back-end use. Recasts a matrix of \phi-values to a table of feature pairs.
-* phi: a result of the 'phit' function
-
-'phitTri' - Provided for back-end use. Returns the "lower left triangle" as a vector.
-* phi: a result of the 'phit' function
-
-'phitSym' - Provided for back-end use. Symmetrizes the proportionality matrix.
-* phi: a result of the 'phit' function
-
-###########################################################
 ### Functions to assist in genomic annotations
 
 'lift' - This function simplifies the process of "lifting over" coordinates from one genome build to another by automatically downloading the necessary .over.chain.gz file.
