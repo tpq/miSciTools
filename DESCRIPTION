@@ -1,11 +1,24 @@
 Package: miSciTools
-Type: Package
-Title: What the Package Does (Title Case)
-Version: 0.1
-Date: 2016-04-23
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Title: Miscellaneous Science Tools for Bioinformatic Analyses
+Version: 0.0.0.9000
+URL: http://github.com/tpq/miSciTools
+BugReports: http://github.com/tpq/miSciTools/issues
+Authors@R: c(
+    person("Thomas", "Quinn", email = "contacttomquinn@gmail.com", role = c("aut", "cre"))
+    )
+Description: Simplifies miscellaneous and cumbersome bioinformatic pipelines.
+License: GPL-2
 LazyData: TRUE
+VignetteBuilder: knitr
 RoxygenNote: 5.0.1
+Depends:
+    R (>= 3.2.2)
+Imports:
+    biovizBase,
+    GenomeInfoDb,
+    grid,
+    R.utils,
+    rtracklayer
+Suggests:
+    knitr,
+    rmarkdown
