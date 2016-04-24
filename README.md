@@ -1,1 +1,3 @@
-# Under major renovation. Check back soon!
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+Under major renovation. Check back soon!
+----------------------------------------
