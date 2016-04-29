@@ -18,7 +18,13 @@ Imports:
     GenomeInfoDb,
     grid,
     R.utils,
-    rtracklayer
+    rtracklayer,
 Suggests:
+    AnnotationDbi,
+    Category,
+    devtools,
+    GSEABase,
+    GOstats,
     knitr,
-    rmarkdown
+    rmarkdown,
+    utils
