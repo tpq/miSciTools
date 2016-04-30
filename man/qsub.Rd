@@ -11,7 +11,7 @@ qsub(cmd, ...)
 
 \item{...}{Any additional PBS argument(s). Each argument should
 get named according to the bash character argument (e.g., set
-\code{-M thom@tpq.me} with \code{qsub(command, M = "thom@tpq.me)}).}
+\code{-M thom@tpq.me} with \code{qsub(command, M = "thom@tpq.me")}).}
 }
 \description{
 This function sends a Linux command to the PBS queue via \code{qsub}.

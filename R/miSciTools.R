@@ -308,7 +308,7 @@ writeR <- function(R, folder = tempdir(), file = paste0(basename(folder), ".R"))
 #' @param cmd A character string. The Linux command to \code{qsub}.
 #' @param ... Any additional PBS argument(s). Each argument should
 #'  get named according to the bash character argument (e.g., set
-#'  \code{-M thom@tpq.me} with \code{qsub(command, M = "thom@tpq.me)}).
+#'  \code{-M thom@tpq.me} with \code{qsub(command, M = "thom@tpq.me")}).
 #'
 #' @export
 qsub <- function(cmd, ...){
