@@ -1,3 +1,31 @@
+#' Comparative Toxicogenomics Database
+#'
+#' These data catalog chemical-gene interactions curated from the literature.
+#'  Each interaction in this database contains useful information about the
+#'  source of this knowledge and the type of interaction observed.
+#'
+#' @format A \code{data.frame} with 1,242,884 chemical-gene interactions (rows)
+#'  and 11 annotations (columns).
+#'
+#' @source \url{http://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}
+#'
+#' @usage data(ctd)
+#'
+#' @examples
+#' \dontrun{
+#' library(miSciTools)
+#' data(ctd)
+#' head(ctd[, c("GeneID", "ChemicalName")])
+#' genes <- ctd$GeneID[ctd$ChemicalName == "Platinum"]
+#' pvals <-
+#'   simpliGSEA(genes = genes, # Test "Platinum" interactions
+#'              universe = unique(ctd$GeneID),
+#'              annot.genes = ctd$GeneID,
+#'              annot.terms = ctd$ChemicalName)
+#' head(sort(p.adjust(pvals)))
+#' }
+"ctd"
+
 #' Linc2GO GeneSetCollection
 #'
 #' These data expose the Linc2GO database as a \code{GeneSetCollection} object
@@ -21,7 +49,9 @@
 #'
 #' @source \url{http://www.bioinfo.tsinghua.edu.cn/~liuke/Linc2GO/}
 #'
-#' @example
+#' @usage data(linc2go)
+#'
+#' @examples
 #' \dontrun{
 #' library(miSciTools)
 #' data(linc2go)
