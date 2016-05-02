@@ -19,12 +19,13 @@ will correspond.}
 \code{annot.genes}.}
 }
 \value{
-A vector of p-values.
+A vector of p-values named based on the tested annotation.
 }
 \description{
 This function simplifies gene set enrichment analysis for custom annotations.
  Do not use this function for annotations that have directed acyclic graph
  (DAG) relationships (e.g., GO). Gene set enrichment analysis performed
- using Fisher's exact test for count data.
+ using Fisher's exact test for count data. This function will implicitly
+ filter non-unique \code{annot.genes} and \code{annot.terms} pairs.
 }
 

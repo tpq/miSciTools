@@ -72,7 +72,8 @@ lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
 #' This function simplifies gene set enrichment analysis for custom annotations.
 #'  Do not use this function for annotations that have directed acyclic graph
 #'  (DAG) relationships (e.g., GO). Gene set enrichment analysis performed
-#'  using Fisher's exact test for count data.
+#'  using Fisher's exact test for count data. This function will implicitly
+#'  filter non-unique \code{annot.genes} and \code{annot.terms} pairs.
 #'
 #' @param genes A character vector. The gene IDs of interest.
 #' @param universe A character vector. The complete set of gene IDs used to
@@ -81,7 +82,7 @@ lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
 #'  will correspond.
 #' @param annot.terms A character vector. The annotations corresponding to
 #'  \code{annot.genes}.
-#' @return A vector of p-values.
+#' @return A vector of p-values named based on the tested annotation.
 #'
 #' @export
 simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
