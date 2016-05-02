@@ -22,7 +22,7 @@ file.csv <- tempfile(fileext = ".csv")
 R.utils::gunzip(filename = file.gz, destname = file.csv)
 
 # Read
-ctd <- read.csv(file.csv, skip = 28, header = FALSE)
+ctd <- read.csv(file.csv, skip = 28, header = FALSE, stringsAsFactors = FALSE)
 colnames(ctd) <-
   c("ChemicalName", "ChemicalID", "CasRN", "GeneSymbol", "GeneID", "GeneForms",
     "Organism", "OrganismID", "Interaction", "InteractionActions", "PubMedIDs")
