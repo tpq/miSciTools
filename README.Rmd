@@ -16,8 +16,9 @@ This package provides a toolkit to simplify miscellaneous and cumbersome bioinfo
 ```{r, eval = FALSE}
 library(devtools)
 devtools::install_github("tpq/miSciTools")
+library(miSciTools)
 ```
 
-```{r}
+```{r, echo = FALSE}
 library(miSciTools)
 ```

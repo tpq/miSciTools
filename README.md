@@ -9,8 +9,5 @@ This package provides a toolkit to simplify miscellaneous and cumbersome bioinfo
 ``` r
 library(devtools)
 devtools::install_github("tpq/miSciTools")
-```
-
-``` r
 library(miSciTools)
 ```
