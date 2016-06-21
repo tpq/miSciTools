@@ -1,6 +1,6 @@
 Package: miSciTools
 Title: Miscellaneous Science Tools for Bioinformatic Analyses
-Version: 0.0.0.9000
+Version: 1.0.0.0
 URL: http://github.com/tpq/miSciTools
 BugReports: http://github.com/tpq/miSciTools/issues
 Authors@R: c(
@@ -13,18 +13,17 @@ VignetteBuilder: knitr
 RoxygenNote: 5.0.1
 Depends:
     R (>= 3.2.2)
-Imports:
-    biovizBase,
-    GenomeInfoDb,
-    grid,
-    R.utils,
-    rtracklayer,
 Suggests:
     AnnotationDbi,
+    biovizBase,
     Category,
     devtools,
+    GenomeInfoDb,
+    grid,
     GSEABase,
     GOstats,
     knitr,
+    R.utils,
     rmarkdown,
+    rtracklayer,
     utils

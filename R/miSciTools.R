@@ -25,6 +25,21 @@
 #' @export
 lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
 
+  if(!requireNamespace("R.utils", quietly = TRUE)){
+    stop("Uh oh! This plot method depends on R.utils. ",
+         "Try running: miSciTools::demand('R.utils')")
+  }
+
+  if(!requireNamespace("rtracklayer", quietly = TRUE)){
+    stop("Uh oh! This plot method depends on rtracklayer. ",
+         "Try running: miSciTools::demand('rtracklayer')")
+  }
+
+  if(!requireNamespace("GenomeInfoDb", quietly = TRUE)){
+    stop("Uh oh! This plot method depends on GenomeInfoDb. ",
+         "Try running: miSciTools::demand('GenomeInfoDb')")
+  }
+
   if(!all(genome(object) %in% from)){
 
     warning("Check 'genome(object)' to make sure you selected correct 'over.chain' directory.")
@@ -55,6 +70,11 @@ lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
   GenomeInfoDb::seqlevelsStyle(object) <- tempStyle
 
   if(flatGrl){
+
+    if(!requireNamespace("biovizBase", quietly = TRUE)){
+      stop("Uh oh! This plot method depends on biovizBase. ",
+           "Try running: miSciTools::demand('biovizBase')")
+    }
 
     cat("Transforming GRangesList to GRanges...\n")
     lifted <- biovizBase::flatGrl(lifted)
@@ -162,7 +182,10 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
 #' @export
 multiplot <- function(..., cols = 1){
 
-  library(grid)
+  if(!requireNamespace("grid", quietly = TRUE)){
+    stop("Uh oh! This plot method depends on grid. ",
+         "Try running: miSciTools::demand('grid')")
+  }
 
   # Make a list of plots
   plots <- list(...)
