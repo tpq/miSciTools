@@ -250,7 +250,7 @@ demand <- function(packages){
 
         cat("Looking for", package, "at CRAN...\n")
         suppressWarnings(
-          utils::install.packages(package)
+          utils::install.packages(package, repos = "http://cran.us.r-project.org")
         )
       })
     }
