@@ -40,12 +40,12 @@ lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
          "Try running: miSciTools::demand('GenomeInfoDb')")
   }
 
-  if(!all(genome(object) %in% from)){
+  if(!all(GenomeInfoDb::genome(object) %in% from)){
 
     warning("Check 'genome(object)' to make sure you selected correct 'over.chain' directory.")
   }
 
-  over.chain <- paste0(from, "To", capitalize(to), ".over.chain.gz")
+  over.chain <- paste0(from, "To", R.utils::capitalize(to), ".over.chain.gz")
   cat("Downloading", over.chain, "as temporary file...\n")
   url <- paste0("http://hgdownload.cse.ucsc.edu/goldenpath/", from, "/liftOver/", over.chain)
   file.gz <- tempfile(fileext = ".over.chain.gz")
@@ -160,7 +160,7 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
     table <- table(G, A)
     print(table)
 
-    enrichment[term] <- fisher.test(as.matrix(table))$p.value
+    enrichment[term] <- stats::fisher.test(as.matrix(table))$p.value
 
     cat(term, "Fisher's exact test p-value:", enrichment[term], "\n\n")
   }
@@ -250,7 +250,7 @@ demand <- function(packages){
 
         cat("Looking for", package, "at CRAN...\n")
         suppressWarnings(
-          install.packages(package)
+          utils::install.packages(package)
         )
       })
     }
