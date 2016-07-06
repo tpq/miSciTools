@@ -260,7 +260,7 @@ demand <- function(packages){
       cat("Looking for", package, "at Bioconductor...\n")
       source("https://bioconductor.org/biocLite.R")
       suppressWarnings(
-        BiocInstaller::biocLite(package, suppressUpdates = TRUE)
+        biocLite(package, suppressUpdates = TRUE)
       )
     }
 
@@ -270,7 +270,7 @@ demand <- function(packages){
 
         cat("Looking for", package, "at R-Forge...\n")
         suppressWarnings(
-          install.packages(package, repos = "http://R-Forge.R-project.org")
+          utils::install.packages(package, repos = "http://R-Forge.R-project.org")
         )
       })
     }
