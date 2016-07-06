@@ -26,17 +26,17 @@
 lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
 
   if(!requireNamespace("R.utils", quietly = TRUE)){
-    stop("Uh oh! This plot method depends on R.utils. ",
+    stop("Uh oh! This method depends on R.utils. ",
          "Try running: miSciTools::demand('R.utils')")
   }
 
   if(!requireNamespace("rtracklayer", quietly = TRUE)){
-    stop("Uh oh! This plot method depends on rtracklayer. ",
+    stop("Uh oh! This method depends on rtracklayer. ",
          "Try running: miSciTools::demand('rtracklayer')")
   }
 
   if(!requireNamespace("GenomeInfoDb", quietly = TRUE)){
-    stop("Uh oh! This plot method depends on GenomeInfoDb. ",
+    stop("Uh oh! This method depends on GenomeInfoDb. ",
          "Try running: miSciTools::demand('GenomeInfoDb')")
   }
 
@@ -72,7 +72,7 @@ lift <- function(object, from = "hg18", to = "hg19", flatGrl = TRUE){
   if(flatGrl){
 
     if(!requireNamespace("biovizBase", quietly = TRUE)){
-      stop("Uh oh! This plot method depends on biovizBase. ",
+      stop("Uh oh! This method depends on biovizBase. ",
            "Try running: miSciTools::demand('biovizBase')")
     }
 
@@ -183,7 +183,7 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
 multiplot <- function(..., cols = 1){
 
   if(!requireNamespace("grid", quietly = TRUE)){
-    stop("Uh oh! This plot method depends on grid. ",
+    stop("Uh oh! This method depends on grid. ",
          "Try running: miSciTools::demand('grid')")
   }
 
@@ -235,45 +235,54 @@ multiplot <- function(..., cols = 1){
 
 #' Load or Install Package
 #'
-#' This function finds and installs a package, if not already installed.
+#' This function installs a package if not already installed, then loads it.
 #'
-#' @param package A character string. The package to load or install.
+#' @param packages A character vector. The package(s) to load or install.
 #'
 #' @export
-demand <- function(package){
+demand <- function(packages){
 
-  if(!is.element(package, installed.packages()[, 1])){
+  for(package in packages){
 
-    try({
+    if(!is.element(package, installed.packages()[, 1])){
 
-      cat("Looking for package at CRAN...\n")
-      install.packages(package)
-    })
-  }
+      try({
 
-  if(!is.element(package, installed.packages()[, 1])){
+        cat("Looking for", package, "at CRAN...\n")
+        suppressWarnings(
+          install.packages(package)
+        )
+      })
+    }
 
-    cat("Looking for package at Bioconductor...\n")
-    source("https://bioconductor.org/biocLite.R")
-    biocLite(package, suppressUpdates = TRUE)
-  }
+    if(!is.element(package, installed.packages()[, 1])){
 
-  if(!is.element(package, installed.packages()[, 1])){
+      cat("Looking for", package, "at Bioconductor...\n")
+      source("https://bioconductor.org/biocLite.R")
+      suppressWarnings(
+        biocLite(package, suppressUpdates = TRUE)
+      )
+    }
 
-    try({
+    if(!is.element(package, installed.packages()[, 1])){
 
-      cat("Looking for package at R-Forge...\n")
-      install.packages(package, repos = "http://R-Forge.R-project.org")
-    })
-  }
+      try({
 
-  if(is.element(package, installed.packages()[,1])){
+        cat("Looking for", package, "at R-Forge...\n")
+        suppressWarnings(
+          install.packages(package, repos = "http://R-Forge.R-project.org")
+        )
+      })
+    }
 
-    library(package, character.only = TRUE)
+    if(is.element(package, installed.packages()[,1])){
 
-  }else{
+      library(package, character.only = TRUE)
 
-    stop("Could not find requested package!")
+    }else{
+
+      warning("Could not find ", package, "!")
+    }
   }
 }
 
@@ -296,6 +305,31 @@ peakRAM <- function(fx){
   names(final) <- "max.Mb"
   gc(reset = TRUE)
   return(final)
+}
+
+#' Set Temporary Object
+#'
+#' Set a given value to a temporary object in a specified environment.
+#'
+#' @param value An object to assign as a temporary object.
+#' @param pos Where to do the assignment (relative to the \code{asTempObj}
+#'  environment). Defaults to \code{pos = 1}.
+#' @param envir The environment to use.
+#' @return The name of the temporary object as assigned in the provided
+#'  environment.
+#'
+#' @export
+asTempObj <- function(value, pos = 1, envir = as.environment(pos)){
+
+  alreadyInUse <- TRUE
+  while(alreadyInUse){
+
+    id <- paste(sample(c(letters, LETTERS), 8), collapse = "")
+    alreadyInUse <- id %in% ls(pos = pos, envir = envir)
+  }
+
+  assign(id, value, pos = pos, envir = envir)
+  return(id)
 }
 
 #' Write R Script
@@ -351,4 +385,88 @@ qsub <- function(cmd, ...){
   system(run)
 
   return(TRUE)
+}
+
+###########################################################
+### Functions to manage the cache
+
+#' Generate Cache Key
+#'
+#' Generates a unique hash key from a list of objects.
+#'
+#' @param ... Any number of objects used to make a key.
+#' @return A unique key.
+#'
+#' @seealso \code{\link{cache.save}}, \code{\link{cache.load}}
+#' @export
+cache.key <- function(...){
+
+  if(!requireNamespace("digest", quietly = TRUE)){
+    stop("Uh oh! This method depends on digest. ",
+         "Try running: install.packages('digest')")
+  }
+
+  args <- as.list(eval(list(...)))
+  key <- paste0("cache", digest::digest(args, serialize = TRUE))
+  return(key)
+}
+
+#' Save Value to Cache
+#'
+#' Saves a value in raw to an SQLite database under a specified key.
+#'
+#' @param key A unique key for the cache.
+#' @param value The value to associate with this key.
+#' @param where The cache file.
+#'
+#' @seealso \code{\link{cache.key}}, \code{\link{cache.load}}
+#' @export
+cache.save <- function(key, value, where = paste0(getwd(), "/.cache")){
+
+  if(!requireNamespace("RMySQL", quietly = TRUE)){
+    stop("Uh oh! This method depends on RMySQL. ",
+         "Try running: install.packages('RMySQL')")
+  }
+
+  if(!requireNamespace("RSQLite", quietly = TRUE)){
+    stop("Uh oh! This method depends on RSQLite. ",
+         "Try running: install.packages('RSQLite')")
+  }
+
+  con <- RMySQL::dbConnect(RSQLite::SQLite(), where)
+  value.serial <- data.frame("value" = serialize(value, connection = NULL))
+  RMySQL::dbWriteTable(con, name = key, value = value.serial, overwrite = TRUE)
+  RMySQL::dbDisconnect(con)
+  return(TRUE)
+}
+
+#' Load Value from Cache
+#'
+#' Loads a value in raw from an SQLite database under a specified key.
+#'
+#' @param key A unique key for the cache.
+#' @param where The cache file.
+#' @return The imported value.
+#'
+#' @seealso \code{\link{cache.key}}, \code{\link{cache.save}}
+#' @export
+cache.load <- function(key, where = paste0(get(), "/.cache")){
+
+  if(!requireNamespace("RMySQL", quietly = TRUE)){
+    stop("Uh oh! This method depends on RMySQL. ",
+         "Try running: install.packages('RMySQL')")
+  }
+
+  if(!requireNamespace("RSQLite", quietly = TRUE)){
+    stop("Uh oh! This method depends on RSQLite. ",
+         "Try running: install.packages('RSQLite')")
+  }
+
+  con <- RMySQL::dbConnect(RSQLite::SQLite(), where)
+  value.serial <- RMySQL::dbReadTable(con, key)
+  RMySQL::dbDisconnect(con)
+
+  value.raw <- as.raw(as.hexmode(value.serial$value))
+  value <- unserialize(value.raw)
+  return(value)
 }
