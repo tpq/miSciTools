@@ -13,7 +13,7 @@
 #'  these labels, consider storing names as a separate column in the
 #'  \code{GRanges} object.
 #'
-#' @param A \code{GRanges} object.
+#' @param object A \code{GRanges} object.
 #' @param from A character string. The initial UCSC equivalent genome build
 #'  (e.g., hg18).
 #' @param to A character string. The target UCSC equivalent genome build
@@ -244,7 +244,7 @@ demand <- function(packages){
 
   for(package in packages){
 
-    if(!is.element(package, installed.packages()[, 1])){
+    if(!is.element(package, utils::installed.packages()[, 1])){
 
       try({
 
@@ -255,16 +255,16 @@ demand <- function(packages){
       })
     }
 
-    if(!is.element(package, installed.packages()[, 1])){
+    if(!is.element(package, utils::installed.packages()[, 1])){
 
       cat("Looking for", package, "at Bioconductor...\n")
       source("https://bioconductor.org/biocLite.R")
       suppressWarnings(
-        biocLite(package, suppressUpdates = TRUE)
+        BiocInstaller::biocLite(package, suppressUpdates = TRUE)
       )
     }
 
-    if(!is.element(package, installed.packages()[, 1])){
+    if(!is.element(package, utils::installed.packages()[, 1])){
 
       try({
 
@@ -275,7 +275,7 @@ demand <- function(packages){
       })
     }
 
-    if(is.element(package, installed.packages()[,1])){
+    if(is.element(package, utils::installed.packages()[,1])){
 
       library(package, character.only = TRUE)
 
