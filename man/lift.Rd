@@ -7,6 +7,8 @@
 lift(object, from = "hg18", to = "hg19", flatGrl = TRUE)
 }
 \arguments{
+\item{object}{A \code{GRanges} object.}
+
 \item{from}{A character string. The initial UCSC equivalent genome build
 (e.g., hg18).}
 
@@ -15,8 +17,6 @@ lift(object, from = "hg18", to = "hg19", flatGrl = TRUE)
 
 \item{flatGrl}{A logical scalar. Toggles whether to collapse the
 default \code{GRangesList} output to a \code{GRanges} output.}
-
-\item{A}{\code{GRanges} object.}
 }
 \value{
 A \code{GRangesList} object or \code{GRanges} object.

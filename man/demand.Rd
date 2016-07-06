@@ -4,12 +4,12 @@
 \alias{demand}
 \title{Load or Install Package}
 \usage{
-demand(package)
+demand(packages)
 }
 \arguments{
-\item{package}{A character string. The package to load or install.}
+\item{packages}{A character vector. The package(s) to load or install.}
 }
 \description{
-This function finds and installs a package, if not already installed.
+This function installs a package if not already installed, then loads it.
 }
 
