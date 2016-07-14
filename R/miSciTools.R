@@ -295,14 +295,14 @@ demand <- function(packages){
 #' @export
 peakRAM <- function(fx){
 
-  start <- gc(reset = TRUE)
+  start <- gc(verbose = FALSE, reset = TRUE)
   start <- start["Vcells", 6]
   run <- fx
   run()
-  end <- gc(TRUE)
+  end <- gc(FALSE)
   end <- end["Vcells", 6]
   final <- end - start
-  names(final) <- "max.Mb"
+  names(final) <- "peakRAM.MB"
   gc(reset = TRUE)
   return(final)
 }
