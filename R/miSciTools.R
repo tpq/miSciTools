@@ -302,7 +302,7 @@ peakRAM <- function(fx){
   end <- gc(FALSE)
   end <- end["Vcells", 6]
   final <- end - start
-  names(final) <- "peakRAM.MB"
+  names(final) <- "peakRAM.MiB"
   gc(reset = TRUE)
   return(final)
 }
