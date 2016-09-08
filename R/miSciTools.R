@@ -336,10 +336,11 @@ asTempObj <- function(value, pos = 1, envir = as.environment(pos)){
 #'
 #' This function saves a character string as an R script. By default, this
 #'  script gets stored in a temporary directory as a temporarily file.
-#'  This function returns the file path for the saved R script for []
+#'  This function returns the file path for the saved R script for later
 #'  use (e.g., via \code{\link{qsub}}).
 #'
-#' @param R A character string. The R script to save.
+#' @param ... Any number of character strings or R expressions to join
+#'  together and save as an R script.
 #' @param folder A character string. The folder in which to save the script.
 #'  Defaults to a temporary directory name.
 #' @param file A character string. The file name to assign to the script.
@@ -347,8 +348,13 @@ asTempObj <- function(value, pos = 1, envir = as.environment(pos)){
 #' @return The file path for the saved R script.
 #'
 #' @export
-writeR <- function(R, folder = tempdir(), file = paste0(basename(folder), ".R")){
+writeR <- function(..., folder = tempdir(), file = paste0(basename(folder), ".R")){
 
+  # Combine strings and expressions into an R script
+  args <- as.list(substitute(list(...)))[-1]
+  R <- paste(lapply(args, eval), collapse = "")
+
+  # Save R script in a temporary directory
   script <- paste0(folder, "/", file)
   file.create(script)
   fileConn <- file(script)
@@ -363,13 +369,26 @@ writeR <- function(R, folder = tempdir(), file = paste0(basename(folder), ".R"))
 #' This function sends a Linux command to the PBS queue via \code{qsub}.
 #'  Specifically,
 #'
-#' @param cmd A character string. The Linux command to \code{qsub}.
+#' @param cmd A character string. A Linux command to \code{qsub} or the
+#'  location of an R script to \code{qsub}.
 #' @param ... Any additional PBS argument(s). Each argument should
 #'  get named according to the bash character argument (e.g., set
 #'  \code{-M thom@tpq.me} with \code{qsub(command, M = "thom@tpq.me")}).
 #'
 #' @export
 qsub <- function(cmd, ...){
+
+  # Make sure 'cmd' is character input
+  if(class(cmd) != "character"){
+
+    stop("Please supply the 'cmd' argument as a character string.")
+  }
+
+  # Check if 'cmd' is an R file
+  if(file.exists(cmd) & substr(cmd, nchar(cmd)-1, nchar(cmd)) == ".R"){
+
+    cmd <- paste0("R CMD BATCH ", cmd)
+  }
 
   # Prepare #PBS args
   args <- as.list(substitute(list(...)))[-1]
