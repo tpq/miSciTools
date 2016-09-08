@@ -9,8 +9,6 @@
   * Source: http://www.cookbook-r.com/
 * Implemented `demand` function
   * Looks for and installs package from multiple sources
-* Implemented `peakRAM` function
-  * Determines maximum amount of RAM used by function
 * Implemented `asTempObj` function
   * Sets value as a random but unique variable name
 * Implemented `writeR` function
