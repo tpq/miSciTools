@@ -4,10 +4,11 @@
 \alias{writeR}
 \title{Write R Script}
 \usage{
-writeR(R, folder = tempdir(), file = paste0(basename(folder), ".R"))
+writeR(..., folder = tempdir(), file = paste0(basename(tempfile()), ".R"))
 }
 \arguments{
-\item{R}{A character string. The R script to save.}
+\item{...}{Any number of character strings or R expressions to join
+together and save as an R script.}
 
 \item{folder}{A character string. The folder in which to save the script.
 Defaults to a temporary directory name.}
@@ -21,7 +22,7 @@ The file path for the saved R script.
 \description{
 This function saves a character string as an R script. By default, this
  script gets stored in a temporary directory as a temporarily file.
- This function returns the file path for the saved R script for []
+ This function returns the file path for the saved R script for later
  use (e.g., via \code{\link{qsub}}).
 }
 

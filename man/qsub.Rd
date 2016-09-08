@@ -7,7 +7,8 @@
 qsub(cmd, ...)
 }
 \arguments{
-\item{cmd}{A character string. The Linux command to \code{qsub}.}
+\item{cmd}{A character string. A Linux command to \code{qsub} or the
+location of an R script to \code{qsub}.}
 
 \item{...}{Any additional PBS argument(s). Each argument should
 get named according to the bash character argument (e.g., set
