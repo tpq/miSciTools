@@ -286,27 +286,6 @@ demand <- function(packages){
   }
 }
 
-#' Calculate Peak RAM Used
-#'
-#' This function calculates the peak amount of RAM used during a function call.
-#'
-#' @param fx A function to call (e.g., \code{peakRAM(function() phit(counts))}).
-#'
-#' @export
-peakRAM <- function(fx){
-
-  start <- gc(verbose = FALSE, reset = TRUE)
-  start <- start["Vcells", 6]
-  run <- fx
-  run()
-  end <- gc(FALSE)
-  end <- end["Vcells", 6]
-  final <- end - start
-  names(final) <- "peakRAM.MiB"
-  gc(reset = TRUE)
-  return(final)
-}
-
 #' Set Temporary Object
 #'
 #' Set a given value to a temporary object in a specified environment.
@@ -348,11 +327,18 @@ asTempObj <- function(value, pos = 1, envir = as.environment(pos)){
 #' @return The file path for the saved R script.
 #'
 #' @export
-writeR <- function(..., folder = tempdir(), file = paste0(basename(folder), ".R")){
+writeR <- function(..., folder = tempdir(), file = paste0(basename(tempfile()), ".R")){
+
+  # Save parent environment to temporary directory
+  file.wd <- paste0(folder, "/", file, "Data")
+  save.image(file = file.wd)
 
   # Combine strings and expressions into an R script
   args <- as.list(substitute(list(...)))[-1]
   R <- paste(lapply(args, eval), collapse = "")
+
+  # Load parent environment from within R script
+  R <- paste0("load(\"", file.wd, "\")\n", R)
 
   # Save R script in a temporary directory
   script <- paste0(folder, "/", file)
