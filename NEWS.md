@@ -15,6 +15,8 @@
   * Writes an R script as a temporary file
 * Implemented `qsub` function
   * Sends a system command through qsub
+* Implemented `insert` function
+  * Inserts a new line of text into an existing file
 * Implemented `cache.key` function
   * Generates a unique hash key from a list of objects
 * Implemented `cache.save` function

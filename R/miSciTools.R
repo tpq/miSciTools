@@ -393,6 +393,42 @@ qsub <- function(cmd, ...){
 }
 
 ###########################################################
+### Functions to manage system files
+
+#' Insert New Line
+#'
+#' Inserts a new line of text into an existing file at a specified breakpoint.
+#'
+#' @param file A character string. The text file to modify.
+#' @param after A character string. A fragment of existing text that marks
+#'  the line after which to insert the new text.
+#' @param what A character string. The new text to insert.
+#'
+#' @export
+insert <- function(file, after, what){
+
+  # Read lines from connection
+  con <- file(file)
+  lines <- readLines(con)
+
+  # Find where to insert the new line
+  i <- which(grepl(after, lines))[1]
+
+  # Insert the new line
+  if(i == length(lines)){
+
+    new <- c(lines[1:i], as.character(what))
+
+  }else{
+    new <- c(lines[1:i], as.character(what), lines[(i+1):length(lines)])
+  }
+
+  # Write lines to connection
+  writeLines(new, con = con)
+  close(con)
+}
+
+###########################################################
 ### Functions to manage the cache
 
 #' Generate Cache Key
