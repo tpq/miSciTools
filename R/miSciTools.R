@@ -320,17 +320,17 @@ asTempObj <- function(value, pos = 1, envir = as.environment(pos)){
 #'
 #' @param ... Any number of character strings or R expressions to join
 #'  together and save as an R script.
-#' @param folder A character string. The folder in which to save the script.
-#'  Defaults to a temporary directory name.
-#' @param file A character string. The file name to assign to the script.
-#'  Defaults to a temporary file name.
+#' @param file A character string. The file path, including directory, where
+#'  to save the new script. Defaults to a temporary file name.
+#' @param preview A logical scalar. Toggles whether to preview the script
+#'  in the console before saving it. Defaults to \code{FALSE}.
 #' @return The file path for the saved R script.
 #'
 #' @export
-writeR <- function(..., folder = tempdir(), file = paste0(basename(tempfile()), ".R")){
+writeR <- function(..., file = paste0(tempfile(), ".R"), preview = FALSE){
 
   # Save parent environment to temporary directory
-  file.wd <- paste0(folder, "/", file, "Data")
+  file.wd <- paste0(file, "Data")
   save.image(file = file.wd)
 
   # Combine strings and expressions into an R script
@@ -341,13 +341,12 @@ writeR <- function(..., folder = tempdir(), file = paste0(basename(tempfile()), 
   R <- paste0("load(\"", file.wd, "\")\n", R)
 
   # Save R script in a temporary directory
-  script <- paste0(folder, "/", file)
-  file.create(script)
-  fileConn <- file(script)
+  if(preview) cat(R)
+  file.create(file)
+  fileConn <- file(file)
   writeLines(R, fileConn)
   close(fileConn)
-
-  return(script)
+  return(file)
 }
 
 #' Qsub Linux Command

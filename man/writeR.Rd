@@ -4,17 +4,17 @@
 \alias{writeR}
 \title{Write R Script}
 \usage{
-writeR(..., folder = tempdir(), file = paste0(basename(tempfile()), ".R"))
+writeR(..., file = paste0(tempfile(), ".R"), preview = FALSE)
 }
 \arguments{
 \item{...}{Any number of character strings or R expressions to join
 together and save as an R script.}
 
-\item{folder}{A character string. The folder in which to save the script.
-Defaults to a temporary directory name.}
+\item{file}{A character string. The file path, including directory, where
+to save the new script. Defaults to a temporary file name.}
 
-\item{file}{A character string. The file name to assign to the script.
-Defaults to a temporary file name.}
+\item{preview}{A logical scalar. Toggles whether to preview the script
+in the console before saving it. Defaults to \code{FALSE}.}
 }
 \value{
 The file path for the saved R script.
