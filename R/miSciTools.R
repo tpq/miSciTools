@@ -334,8 +334,7 @@ writeR <- function(..., file = paste0(tempfile(), ".R"), preview = FALSE){
   save.image(file = file.wd)
 
   # Combine strings and expressions into an R script
-  args <- as.list(substitute(list(...)))[-1]
-  R <- paste(lapply(args, eval), collapse = "")
+  R <- paste0(..., collapse = "")
 
   # Load parent environment from within R script
   R <- paste0("load(\"", file.wd, "\")\n", R)
