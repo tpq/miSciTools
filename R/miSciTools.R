@@ -352,7 +352,6 @@ writeR <- function(..., file = paste0(tempfile(), ".R"), preview = FALSE){
 #' Qsub Linux Command
 #'
 #' This function sends a Linux command to the PBS queue via \code{qsub}.
-#'  Specifically,
 #'
 #' @param cmd A character string. A Linux command to \code{qsub} or the
 #'  location of an R script to \code{qsub}.
@@ -377,8 +376,15 @@ qsub <- function(cmd, ...){
 
   # Prepare #PBS args
   args <- as.list(substitute(list(...)))[-1]
-  args.bash <- paste0("#PBS -", names(args), " ", unlist(args), "\n",
-                      collapse = "")
+  if(length(args) > 0){
+
+    args.bash <- paste0("#PBS -", names(args), " ", unlist(args), "\n",
+                        collapse = "")
+
+  }else{
+
+    args.bash <- "#PBS\n"
+  }
 
   # Write script to execute cmd
   bash <- paste0("#! /bin/bash", "\n",

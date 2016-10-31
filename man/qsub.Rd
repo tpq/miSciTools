@@ -16,6 +16,5 @@ get named according to the bash character argument (e.g., set
 }
 \description{
 This function sends a Linux command to the PBS queue via \code{qsub}.
- Specifically,
 }
 
