@@ -1,6 +1,6 @@
 Package: miSciTools
 Title: Miscellaneous Science Tools for Bioinformatic Analysis
-Version: 1.0.0
+Version: 1.0.1
 URL: http://github.com/tpq/miSciTools
 BugReports: http://github.com/tpq/miSciTools/issues
 Authors@R: c(
@@ -23,6 +23,7 @@ Suggests:
     grid,
     GSEABase,
     GOstats,
+    igraph,
     knitr,
     R.utils,
     rmarkdown,
