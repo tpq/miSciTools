@@ -1,3 +1,7 @@
+## miSciTools 1.0.2
+---------------------
+* Fix errors in documentation and package imports
+
 ## miSciTools 1.0.1
 ---------------------
 * Modified `simpliGSEA` function

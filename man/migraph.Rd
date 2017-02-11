@@ -14,6 +14,8 @@ migraph.color(g, names1, names2, col)
 migraph.clean(g)
 }
 \arguments{
+\item{g}{An \code{igraph} object.}
+
 \item{names1, names2}{A character vector. The \code{names1}
 argument defines a first set of vertices. The \code{names2}
 argument defines a second set of vertices to which the
@@ -25,9 +27,7 @@ missing vertcies before adding edges. If false, the
 function only adds edges that have both vertices
 already present.}
 
-\item{An}{\code{igraph} object.}
-
-\item{A}{character string. The color applied to all
+\item{col}{A character string. The color applied to all
 vertices (or edges) specified by the \code{names1} (or
 \code{names2}) argument.}
 }

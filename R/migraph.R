@@ -1,12 +1,12 @@
 #' \code{igraph} Helper Functions
 #'
-#' @param An \code{igraph} object.
+#' @param g An \code{igraph} object.
 #' @param names1,names2 A character vector. The \code{names1}
 #'  argument defines a first set of vertices. The \code{names2}
 #'  argument defines a second set of vertices to which the
 #'  first set connects (i.e., element-wise), thereby defining
 #'  a set of edges.
-#' @param A character string. The color applied to all
+#' @param col A character string. The color applied to all
 #'  vertices (or edges) specified by the \code{names1} (or
 #'  \code{names2}) argument.
 #' @param force A boolean. If true, the function adds any
@@ -32,15 +32,15 @@ migraph.add <- function(g, names1, names2, force = TRUE){
 
     # Add any missing vertices before adding edges
     all <- union(names1, names2)
-    new <- all[!all %in% V(g)$name]
+    new <- all[!all %in% igraph::V(g)$name]
     if(length(new) > 0){
-      g <- add.vertices(g, length(new), "name" = new)
+      g <- igraph::add.vertices(g, length(new), "name" = new)
     }
 
   }else{
 
     # Only add edges in which both vertices appear on graph
-    keep <- names1 %in% V(g)$name & names2 %in% V(g)$name
+    keep <- names1 %in% igraph::V(g)$name & names2 %in% igraph::V(g)$name
     names1 <- names1[keep]
     names2 <- names2[keep]
     if(length(names1) == 0){
@@ -58,11 +58,11 @@ migraph.add <- function(g, names1, names2, force = TRUE){
     edges <- unlist(lapply(1:length(names1),
                            function(i) c(names1[i], names2[i])))
 
-    g <- add.edges(g, edges, color = "black")
+    g <- igraph::add.edges(g, edges, color = "black")
   }
 
-  g <- as.undirected(g)
-  g <- simplify(g)
+  g <- igraph::as.undirected(g)
+  g <- igraph::simplify(g)
 
   return(g)
 }
@@ -78,8 +78,8 @@ migraph.color <- function(g, names1, names2, col){
 
   if(missing(names2)){
 
-    V(g)$color <- ifelse(V(g)$name %in% names1,
-                         col, V(g)$color)
+    igraph::V(g)$color <- ifelse(igraph::V(g)$name %in% names1,
+                                 col, igraph::V(g)$color)
 
   }else{
 
@@ -89,10 +89,10 @@ migraph.color <- function(g, names1, names2, col){
     }
 
     names <- paste(names1, names2, collapse = "-")
-    edges <- apply(get.edgelist(g), 1, paste, collapse = "-")
+    edges <- apply(igraph::get.edgelist(g), 1, paste, collapse = "-")
 
-    E(g)$color <- ifelse(edges %in% names,
-                         col, E(g)$color)
+    igraph::E(g)$color <- ifelse(edges %in% names,
+                                 col, igraph::E(g)$color)
   }
 
   return(g)
@@ -107,8 +107,8 @@ migraph.clean <- function(g){
          "Try running: install.packages('igraph')")
   }
 
-  V(g)$size <- 2
-  V(g)$label <- NA
+  igraph::V(g)$size <- 2
+  igraph::V(g)$label <- NA
 
   return(g)
 }
