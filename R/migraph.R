@@ -55,8 +55,9 @@ migraph.add <- function(g, names1, names2, force = TRUE){
       stop("Argument 'names1' and 'names2' should have same length.")
     }
 
-    edges <- unlist(lapply(1:length(names1),
-                           function(i) c(names1[i], names2[i])))
+    edges <- unlist(
+      lapply(1:length(names1),
+             function(i) c(names1[i], names2[i])))
 
     g <- igraph::add.edges(g, edges, color = "black")
   }
@@ -76,6 +77,9 @@ migraph.color <- function(g, names1, names2, col){
          "Try running: install.packages('igraph')")
   }
 
+  if(is.null(igraph::V(g)$color)) igraph::V(g)$color <- "white"
+  if(is.null(igraph::E(g)$color)) igraph::E(g)$color <- "black"
+
   if(missing(names2)){
 
     igraph::V(g)$color <- ifelse(igraph::V(g)$name %in% names1,
@@ -88,9 +92,11 @@ migraph.color <- function(g, names1, names2, col){
       stop("Argument 'names1' and 'names2' should have same length.")
     }
 
-    names <- paste(names1, names2, collapse = "-")
-    edges <- apply(igraph::get.edgelist(g), 1, paste, collapse = "-")
+    names <- unlist(
+      lapply(1:length(names1),
+             function(i) paste(names1[i], names2[i], sep = "-")))
 
+    edges <- apply(igraph::get.edgelist(g), 1, paste, collapse = "-")
     igraph::E(g)$color <- ifelse(edges %in% names,
                                  col, igraph::E(g)$color)
   }
