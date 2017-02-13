@@ -95,9 +95,12 @@ migraph.color <- function(g, names1, names2, col){
     names <- unlist(
       lapply(1:length(names1),
              function(i) paste(names1[i], names2[i], sep = "-")))
+    also <- unlist(
+      lapply(1:length(names1),
+             function(i) paste(names2[i], names1[i], sep = "-")))
 
     edges <- apply(igraph::get.edgelist(g), 1, paste, collapse = "-")
-    igraph::E(g)$color <- ifelse(edges %in% names,
+    igraph::E(g)$color <- ifelse(edges %in% names | edges %in% also,
                                  col, igraph::E(g)$color)
   }
 
