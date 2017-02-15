@@ -26,7 +26,9 @@ migraph.add <- function(g, names1, names2, force = TRUE){
          "Try running: install.packages('igraph')")
   }
 
-  if(missing(names2)) names2 <- NULL
+  if(missing(names2)){ names2 <- NULL
+  }else{ names2 <- as.character(names2) }
+  names1 <- as.character(names1)
 
   if(force | is.null(names2)){
 
@@ -51,7 +53,6 @@ migraph.add <- function(g, names1, names2, force = TRUE){
   if(!is.null(names2)){
 
     if(length(names1) != length(names2)){
-
       stop("Argument 'names1' and 'names2' should have same length.")
     }
 
@@ -80,7 +81,11 @@ migraph.color <- function(g, names1, names2, col){
   if(is.null(igraph::V(g)$color)) igraph::V(g)$color <- "white"
   if(is.null(igraph::E(g)$color)) igraph::E(g)$color <- "black"
 
-  if(missing(names2)){
+  if(missing(names2)){ names2 <- NULL
+  }else{ names2 <- as.character(names2) }
+  names1 <- as.character(names1)
+
+  if(is.null(names2)){
 
     igraph::V(g)$color <- ifelse(igraph::V(g)$name %in% names1,
                                  col, igraph::V(g)$color)
@@ -88,7 +93,6 @@ migraph.color <- function(g, names1, names2, col){
   }else{
 
     if(length(names1) != length(names2)){
-
       stop("Argument 'names1' and 'names2' should have same length.")
     }
 

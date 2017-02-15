@@ -1,5 +1,6 @@
 ## miSciTools 1.0.2
 ---------------------
+* Have `migraph` functions coerce arguments as character input
 * Fix errors in documentation and package imports
 
 ## miSciTools 1.0.1
