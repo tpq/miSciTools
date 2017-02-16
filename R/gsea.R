@@ -31,13 +31,13 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
   if(!all(universe %in% annot.genes)){
 
     message("Some 'universe' not in 'annot.genes'. Pruning unused genes.")
-    universe[universe %in% annot.genes]
+    universe <- universe[universe %in% annot.genes]
   }
 
   if(!all(genes %in% universe)){
 
     message("Some 'genes' not found in 'universe'. Pruning unused genes.")
-    genes[genes %in% universe]
+    genes <- genes[genes %in% universe]
   }
 
   if(length(unique(genes)) < length(genes)){

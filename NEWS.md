@@ -2,6 +2,7 @@
 ---------------------
 * Have `migraph` functions coerce arguments as character input
 * Fix errors in documentation and package imports
+* Fix `simpliGSEA` pruning so it actually works
 
 ## miSciTools 1.0.1
 ---------------------
