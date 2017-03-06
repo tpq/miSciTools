@@ -17,4 +17,3 @@ the line after which to insert the new text.}
 \description{
 Inserts a new line of text into an existing file at a specified breakpoint.
 }
-

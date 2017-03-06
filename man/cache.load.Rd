@@ -20,4 +20,3 @@ Loads a value in raw from an SQLite database under a specified key.
 \seealso{
 \code{\link{cache.key}}, \code{\link{cache.save}}
 }
-

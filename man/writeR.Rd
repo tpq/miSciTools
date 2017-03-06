@@ -25,4 +25,3 @@ This function saves a character string as an R script. By default, this
  This function returns the file path for the saved R script for later
  use (e.g., via \code{\link{qsub}}).
 }
-

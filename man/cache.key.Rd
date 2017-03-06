@@ -18,4 +18,3 @@ Generates a unique hash key from a list of objects.
 \seealso{
 \code{\link{cache.save}}, \code{\link{cache.load}}
 }
-

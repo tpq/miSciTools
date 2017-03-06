@@ -21,4 +21,3 @@ The name of the temporary object as assigned in the provided
 \description{
 Set a given value to a temporary object in a specified environment.
 }
-

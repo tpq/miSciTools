@@ -19,4 +19,3 @@ Saves a value in raw to an SQLite database under a specified key.
 \seealso{
 \code{\link{cache.key}}, \code{\link{cache.load}}
 }
-

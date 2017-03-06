@@ -12,4 +12,3 @@ demand(packages)
 \description{
 This function installs a package if not already installed, then loads it.
 }
-

@@ -33,4 +33,3 @@ This function will convert any non-UCSC coordinates to UCSC equivalents.
  these labels, consider storing names as a separate column in the
  \code{GRanges} object.
 }
-

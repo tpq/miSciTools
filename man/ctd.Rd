@@ -32,4 +32,3 @@ head(sort(p.adjust(pvals)))
 }
 }
 \keyword{datasets}
-
