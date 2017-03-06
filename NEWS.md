@@ -1,3 +1,7 @@
+## miSciTools 1.0.3
+---------------------
+* Have `simpliGSEA` pass `alternative` argument to `fisher.test`
+
 ## miSciTools 1.0.2
 ---------------------
 * Have `migraph` functions coerce arguments as character input

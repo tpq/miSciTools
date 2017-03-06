@@ -4,7 +4,7 @@
 \alias{simpliGSEA}
 \title{Perform Gene Set Enrichment Analysis}
 \usage{
-simpliGSEA(genes, universe, annot.genes, annot.terms)
+simpliGSEA(genes, universe, annot.genes, annot.terms, alternative = "greater")
 }
 \arguments{
 \item{genes}{A character vector. The gene IDs of interest.}
@@ -17,6 +17,8 @@ will correspond.}
 
 \item{annot.terms}{A character vector. The annotations corresponding to
 \code{annot.genes}.}
+
+\item{alternative}{A character string. Argument passed to \code{fisher.test}.}
 }
 \value{
 A vector of unadjusted p-values named as the tested annotation.
@@ -28,4 +30,3 @@ This function simplifies gene set enrichment analysis for custom annotations.
  using Fisher's exact test for count data. This function will automatically
  filter non-unique \code{annot.genes} and \code{annot.terms} pairs.
 }
-

@@ -1,6 +1,6 @@
 Package: miSciTools
 Title: Miscellaneous Science Tools for Bioinformatic Analysis
-Version: 1.0.2
+Version: 1.0.3
 URL: http://github.com/tpq/miSciTools
 BugReports: http://github.com/tpq/miSciTools/issues
 Authors@R: c(
@@ -10,7 +10,7 @@ Description: Simplifies miscellaneous and cumbersome bioinformatic pipelines.
 License: GPL-2
 LazyData: TRUE
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 Depends:
     R (>= 3.2.2)
 Suggests:

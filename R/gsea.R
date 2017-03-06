@@ -13,20 +13,21 @@
 #'  will correspond.
 #' @param annot.terms A character vector. The annotations corresponding to
 #'  \code{annot.genes}.
+#' @param alternative A character string. Argument passed to \code{fisher.test}.
 #' @return A vector of unadjusted p-values named as the tested annotation.
 #'
 #' @export
-simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
+simpliGSEA <- function(genes, universe, annot.genes, annot.terms, alternative = "greater"){
 
   if(length(annot.genes) != length(annot.terms)){
 
     stop("The 'annot.genes' and 'annot'terms' vectors must have same length!")
   }
 
-  if("factor" %in% c(class(genes), class(universe), class(annot.genes), class(annot.terms))){
-
-    stop("This function will not accept any factors as input!")
-  }
+  if(class(genes) == "factor") genes <- as.character(genes)
+  if(class(universe) == "factor") universe <- as.character(universe)
+  if(class(annot.genes) == "factor") annot.genes <- as.character(annot.genes)
+  if(class(annot.terms) == "factor") annot.terms <- as.character(annot.terms)
 
   if(!all(universe %in% annot.genes)){
 
@@ -40,16 +41,16 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
     genes <- genes[genes %in% universe]
   }
 
-  if(length(unique(genes)) < length(genes)){
-
-    cat("Removing duplicate IDs in 'genes'...")
-    genes <- unique(genes)
-  }
-
   if(length(unique(universe)) < length(universe)){
 
-    cat("Removing duplicate IDs in 'universe'...")
+    message("Removing duplicate IDs in 'universe'.")
     universe <- unique(universe)
+  }
+
+  if(length(unique(genes)) < length(genes)){
+
+    message("Removing duplicate IDs in 'genes'.")
+    genes <- unique(genes)
   }
 
   # Subset database to contain only the universe
@@ -58,10 +59,17 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
   annot.terms <- annot.terms[annot.universe]
 
   # Initialize result container
-  enrichment <- vector("numeric", length(unique(annot.terms)))
-  names(enrichment) <- unique(annot.terms)
+  annot.terms.unique <- unique(annot.terms)
+  k <- length(annot.terms.unique)
+  enrichment <- vector("numeric", k)
+  names(enrichment) <- annot.terms.unique
+  i <- 1
 
-  for(term in unique(annot.terms)){
+  for(term in annot.terms.unique){
+
+    # Manage progress bar
+    numTicks <- progress(i, k, numTicks)
+    i <- i + 1
 
     # TRUE if has term
     A <- factor(universe %in% annot.genes[annot.terms == term], levels = c(TRUE, FALSE))
@@ -71,11 +79,8 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms){
 
     # See: https://www.biostars.org/p/111953/
     table <- table(G, A)
-    print(table)
-
-    enrichment[term] <- stats::fisher.test(as.matrix(table))$p.value
-
-    cat(term, "Fisher's exact test p-value:", enrichment[term], "\n\n")
+    enrichment[term] <- stats::fisher.test(as.matrix(table),
+                                           alternative = alternative)$p.value
   }
 
   return(enrichment)
