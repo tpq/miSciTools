@@ -1,3 +1,10 @@
+## miSciTools 1.0.4
+---------------------
+* Implemented `quick.edgeR` function
+    * Run `edgeR` Exact Test for differential expression analysis
+* Added `kegg` data
+    * Details KEGGREST-gene relationships
+
 ## miSciTools 1.0.3
 ---------------------
 * Have `simpliGSEA` pass `alternative` argument to `fisher.test`
