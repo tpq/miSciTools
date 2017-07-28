@@ -26,6 +26,18 @@
 #' }
 "ctd"
 
+#' KEGGREST Database
+#'
+#' These data catalog KEGGREST-gene relationships from the KEGGREST database.
+#'
+#' @format A \code{data.frame} with 27,944 KEGGREST-gene relationships (rows).
+#'  Retrieved on July 28, 2017.
+#'
+#' @source \url{http://rest.kegg.jp/link/pathway/hsa}
+#'
+#' @usage data(kegg)
+"kegg"
+
 #' Linc2GO GeneSetCollection
 #'
 #' These data expose the Linc2GO database as a \code{GeneSetCollection} object
