@@ -1,3 +1,7 @@
+## miSciTools 1.0.5
+---------------------
+* Update `ctd` data and remove `NA` GeneIDs
+
 ## miSciTools 1.0.4
 ---------------------
 * Implemented `quick.edgeR` function

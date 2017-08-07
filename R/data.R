@@ -4,8 +4,8 @@
 #'  Each interaction in this database contains useful information about the
 #'  source of this knowledge and the type of interaction observed.
 #'
-#' @format A \code{data.frame} with 1,242,884 chemical-gene interactions (rows)
-#'  and 11 annotations (columns).
+#' @format A \code{data.frame} with >1,000,000 chemical-gene interactions (rows)
+#'  and 11 annotations (columns). Retrieved on August 7, 2017.
 #'
 #' @source \url{http://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}
 #'

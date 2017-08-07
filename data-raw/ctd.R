@@ -27,11 +27,9 @@ colnames(ctd) <-
   c("ChemicalName", "ChemicalID", "CasRN", "GeneSymbol", "GeneID", "GeneForms",
     "Organism", "OrganismID", "Interaction", "InteractionActions", "PubMedIDs")
 
-# Check
-if(!all(ctd$GeneID[1:8] == c(4149, 4149, 4609, 4609, 4609, 4609, 4609, 3784))){
-
-  stop("Import check failed. A 'CTD' update may have caused this?")
-}
+# Remove NAs
+ctd <- ctd[!is.na(ctd$GeneID), ]
+rownames(ctd) <- 1:nrow(ctd)
 
 # Save
 devtools::use_data(ctd)
