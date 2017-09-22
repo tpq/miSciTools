@@ -1,3 +1,10 @@
+## miSciTools 1.0.6
+---------------------
+* Implemented `fastafolder` function
+    * Calculates the dissimilarity between sequences based on secondary structure
+* Added `packageCheck` function
+    * Triggers an error if a package is not installed
+
 ## miSciTools 1.0.5
 ---------------------
 * Update `ctd` data and remove `NA` GeneIDs
