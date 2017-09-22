@@ -1,3 +1,24 @@
+#' Check for Packages
+#'
+#' Triggers an error if a package is not installed.
+#'
+#' @param packages A character vector of packages.
+#'
+#' @export
+packageCheck <- function(packages){
+
+  for(package in packages){
+
+    if (!requireNamespace(package, quietly = TRUE)) {
+      stop("Uh oh! This propr method depends on ", package,
+           "! ", "Try running: install.packages('", package,
+           "')")
+    }
+  }
+
+  return(TRUE)
+}
+
 #' Plot Multiple Graphs
 #'
 #' Easily plot multiple graphs within the same window. Code adapted from
