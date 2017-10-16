@@ -32,9 +32,11 @@ fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
                         groupBy = .5, cores = 1){
 
   packageCheck(
-    c("GeneR", "GeneRfold", "magick", "seqinr", "LncFinder",
-      "Biostrings", "parallel", "doParallel", "foreach")
+    c("magick", "seqinr", "LncFinder", "Biostrings",
+      "parallel", "doParallel", "foreach")
   )
+
+  if(!groupBy == 0) packageCheck(c("GeneR", "GeneRfold"))
 
   seqplot <- function(seq, file){
     temp <- tempfile()
@@ -133,4 +135,78 @@ fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
   }
 
   return(dis)
+}
+
+#' Aptly Characterize Aptamers
+#'
+#' This function procedurally characterizes the secondary structure of RNA sequences
+#'  using regular expressions. The characterizations used may have relevance to identifying
+#'  potentially functional aptamers.
+#'
+#' This function requires a multi-sequence FASTA file as input. It also depends on the UNIX
+#'  programs RNAfold and imagemagick. Install RNAfold through the ViennaRNA package.
+#'
+#' @inheritParams fastafolder
+#' @return A data.frame of characteristics.
+#'
+#' @export
+aptly <- function(fasta){
+
+  packageCheck(c("seqinr", "LncFinder"))
+
+  message("* Reading FASTA...")
+  Seqs <- seqinr::read.fasta(file = fasta)
+
+  message("* Folding RNA...")
+  SS.seq_2 <- LncFinder::run_RNAfold(Seqs, RNAfold.path = "RNAfold", parallel.cores = cores)
+  system("rm rna.ps")
+
+  # Define regex terms
+  lopen <- "\\("
+  lonly <- "\\(+"
+  lcont <- "(\\(|\\.)+"
+  pin <- "\\.+"
+  ropen <- "\\)"
+  ronly <- "\\)+"
+  rcont <- "(\\)|\\.)+"
+
+  message("* Characterizing structures...")
+  out <- lapply(SS.seq_2, function(SEQobj){
+
+    note <- SEQobj[2]
+
+    find <- gregexpr("^\\.*", note, perl = TRUE)[[1]]
+    LeadLength <- attr(find, "match.length")[1]
+
+    find <- gregexpr("\\.*$", note, perl = TRUE)[[1]]
+    LagLength <- attr(find, "match.length")[1]
+
+    find <- gregexpr(paste0(lopen, pin, ropen), note)[[1]]
+    HairpinTipsTotal <- length(find) # number hairpins
+    HairpinTipsLength <- mean(attr(find, "match.length") - 2) # mean hairpin tip length
+    HairpinTipsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin tip
+
+    find <- gregexpr(paste0(lopen, lcont, pin, rcont, ropen), note)[[1]]
+    HairpinsTotal <- length(find) # number hairpins
+    HairpinsLength <- mean(attr(find, "match.length") - 2) # mean hairpin length
+    HairpinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # hairpin tip
+
+    find <- gregexpr(paste0(lonly, pin, lonly, pin, ronly, pin, ronly), note)[[1]]
+    BulgedPinsTotal <- length(find) # number pre-hairpin bulges
+    BulgedPinsLength <- mean(attr(find, "match.length") - 2) # mean pre-hairpin bulge length
+    BulgedPinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % pre-hairpin bulges
+
+    data.frame(
+      LeadLength, LagLength,
+      HairpinTipsTotal, HairpinTipsLength, HairpinTipsPercent,
+      HairpinsTotal, HairpinsLength, HairpinsPercent,
+      BulgedPinsTotal, BulgedPinsLength, BulgedPinsPercent
+    )
+  })
+
+  message("* Cleaning data...")
+  table <- do.call("rbind", out)
+  if(!is.null(names(SS.seq_2))) rownames(table) <- names(SS.seq_2)
+
+  return(table)
 }

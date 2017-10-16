@@ -1,3 +1,8 @@
+## miSciTools 1.0.7
+---------------------
+* Implemented `aptly` function
+    * Procedurally characterizes RNA sequences based on secondary structure
+
 ## miSciTools 1.0.6
 ---------------------
 * Implemented `fastafolder` function
