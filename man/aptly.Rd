@@ -4,15 +4,18 @@
 \alias{aptly}
 \title{Aptly Characterize Aptamers}
 \usage{
-aptly(fasta, cores = 1)
+aptly(fasta, cores = 1, select)
 }
 \arguments{
 \item{fasta}{A multi-sequence FASTA file.}
 
 \item{cores}{The number of cores to use.}
+
+\item{select}{A numeric or character vector. Selects which sequences from
+the multi-sequence FASTA file to include in the analysis.}
 }
 \value{
-A data.frame of characteristics.
+A list of characteristics.
 }
 \description{
 This function procedurally characterizes the secondary structure of RNA sequences

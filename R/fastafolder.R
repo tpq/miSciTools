@@ -147,15 +147,18 @@ fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
 #'  programs RNAfold and imagemagick. Install RNAfold through the ViennaRNA package.
 #'
 #' @inheritParams fastafolder
-#' @return A data.frame of characteristics.
+#' @param select A numeric or character vector. Selects which sequences from
+#'  the multi-sequence FASTA file to include in the analysis.
+#' @return A list of characteristics.
 #'
 #' @export
-aptly <- function(fasta, cores = 1){
+aptly <- function(fasta, cores = 1, select){
 
   packageCheck(c("seqinr", "LncFinder", "Biostrings", "ggplot2", "reshape2"))
 
   message("* Reading FASTA...")
   Seqs <- seqinr::read.fasta(file = fasta)
+  if(!missing(select)) Seqs <- Seqs[select]
 
   message("* Folding RNA...")
   SS.seq_2 <- LncFinder::run_RNAfold(Seqs, RNAfold.path = "RNAfold", parallel.cores = cores)
@@ -242,15 +245,16 @@ aptly <- function(fasta, cores = 1){
   string <- gsub("\\?", "N", string)
   title <- paste0("Visualization of Consensus Sequence: [", string, "]")
 
-  ggplot2::ggplot(reshape2::melt(pwm), ggplot2::aes(x = Var2, y = value, fill = Var1)) +
+  g <- ggplot2::ggplot(reshape2::melt(pwm), ggplot2::aes(x = Var2, y = value, fill = Var1)) +
     ggplot2::geom_bar(stat = "identity") + ggplot2::scale_fill_brewer(palette = "Set2") +
     ggplot2::xlab("Distance from Reference Origin") + ggplot2::ylab("Frequency of Base") +
     ggplot2::labs("fill" = "Base") + ggplot2::theme_bw() + ggplot2::ggtitle(title)
+  plot(g)
 
   return(
     list(
       "table" = table, "hybrid" = a, "aligned" = c,
-      "pwm" = pwm, "string" = string
+      "g" = g, "pwm" = pwm, "string" = string
     )
   )
 }
