@@ -25,7 +25,7 @@
 #'
 #' @return A dissimilarity measure from [0, 1].
 #'
-#' @importFrom foreach %:% %do% %dopar%
+#' @importFrom foreach %:% %dopar%
 #' @export
 fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
                         gapOpening = 10, gapExtension = 4,
@@ -140,7 +140,7 @@ fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
 #' Aptly Characterize Aptamers
 #'
 #' This function procedurally characterizes the secondary structure of RNA sequences
-#'  using regular expressions. The characterizations used may have relevance to identifying
+#'  using regular expressions. The characterizations provided may help identify
 #'  potentially functional aptamers.
 #'
 #' This function requires a multi-sequence FASTA file as input. It also depends on the UNIX
@@ -150,9 +150,9 @@ fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
 #' @return A data.frame of characteristics.
 #'
 #' @export
-aptly <- function(fasta){
+aptly <- function(fasta, cores = 1){
 
-  packageCheck(c("seqinr", "LncFinder"))
+  packageCheck(c("seqinr", "LncFinder", "Biostrings", "ggplot2", "reshape2"))
 
   message("* Reading FASTA...")
   Seqs <- seqinr::read.fasta(file = fasta)
@@ -182,14 +182,14 @@ aptly <- function(fasta){
     LagLength <- attr(find, "match.length")[1]
 
     find <- gregexpr(paste0(lopen, pin, ropen), note)[[1]]
-    HairpinTipsTotal <- length(find) # number hairpins
+    HairpinTipsTotal <- length(find) # number hairpin tips
     HairpinTipsLength <- mean(attr(find, "match.length") - 2) # mean hairpin tip length
     HairpinTipsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin tip
 
     find <- gregexpr(paste0(lopen, lcont, pin, rcont, ropen), note)[[1]]
     HairpinsTotal <- length(find) # number hairpins
     HairpinsLength <- mean(attr(find, "match.length") - 2) # mean hairpin length
-    HairpinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # hairpin tip
+    HairpinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin
 
     find <- gregexpr(paste0(lonly, pin, lonly, pin, ronly, pin, ronly), note)[[1]]
     BulgedPinsTotal <- length(find) # number pre-hairpin bulges
@@ -204,9 +204,47 @@ aptly <- function(fasta){
     )
   })
 
-  message("* Cleaning data...")
   table <- do.call("rbind", out)
   if(!is.null(names(SS.seq_2))) rownames(table) <- names(SS.seq_2)
 
-  return(table)
+  message("* Creating hybrid pseudo-sequences...")
+  out <- lapply(SS.seq_2, function(SEQobj){
+
+    s1 <- toupper(SEQobj[1])
+    s1 <- gsub("U", "T", s1)
+    s1 <- strsplit(s1, "")[[1]]
+
+    s2 <- gsub("\\(", ".", SEQobj[2])
+    s2 <- gsub("\\)", "+", s2)
+    s2 <- strsplit(s2, "")[[1]]
+
+    dots <- gregexpr("\\.", SEQobj[2])[[1]]
+
+    s2[dots] <- s1[dots]
+    return(paste0(s2, collapse = ""))
+  })
+
+  message("* Aligning pseudo-sequences to reference...")
+  a <- Biostrings::DNAStringSet(unlist(out))
+  a <- a[order(width(a), decreasing = TRUE)]
+  b <- Biostrings::pairwiseAlignment(a[2:length(a)], a[1])
+  c <- Biostrings::BStringSet(b)
+
+  message("* Finding consensuses...")
+  pwm <- Biostrings::consensusMatrix(c)
+  pwm <- pwm[c("A", "T", "G", "C", ".", "+"), ]
+  rownames(pwm) <- c("A", "T", "G", "C", "(", ")")
+
+  string <- Biostrings::consensusString(c)
+  string <- gsub("\\.", "(", string)
+  string <- gsub("\\+", ")", string)
+  string <- gsub("\\?", "N", string)
+  title <- paste0("Visualization of Consensus Sequence: [", string, "]")
+
+  ggplot2::ggplot(reshape2::melt(pwm), ggplot2::aes(x = Var2, y = value, fill = Var1)) +
+    ggplot2::geom_bar(stat = "identity") + ggplot2::scale_fill_brewer(palette = "Set2") +
+    ggplot2::xlab("Distance from Reference Origin") + ggplot2::ylab("Frequency of Base") +
+    ggplot2::labs("fill" = "Base") + ggplot2::theme_bw() + ggplot2::ggtitle(title)
+
+  return(list(table, pwm, string))
 }

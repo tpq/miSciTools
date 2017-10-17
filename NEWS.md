@@ -2,6 +2,7 @@
 ---------------------
 * Implemented `aptly` function
     * Procedurally characterizes RNA sequences based on secondary structure
+    * Generates consensus string from primary and secondary structure
 
 ## miSciTools 1.0.6
 ---------------------

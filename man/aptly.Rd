@@ -4,17 +4,19 @@
 \alias{aptly}
 \title{Aptly Characterize Aptamers}
 \usage{
-aptly(fasta)
+aptly(fasta, cores = 1)
 }
 \arguments{
 \item{fasta}{A multi-sequence FASTA file.}
+
+\item{cores}{The number of cores to use.}
 }
 \value{
 A data.frame of characteristics.
 }
 \description{
 This function procedurally characterizes the secondary structure of RNA sequences
- using regular expressions. The characterizations used may have relevance to identifying
+ using regular expressions. The characterizations provided may help identify
  potentially functional aptamers.
 }
 \details{
