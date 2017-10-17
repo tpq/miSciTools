@@ -227,8 +227,9 @@ aptly <- function(fasta, cores = 1){
   message("* Aligning pseudo-sequences to reference...")
   a <- Biostrings::DNAStringSet(unlist(out))
   a <- a[order(Biostrings::width(a), decreasing = TRUE)]
-  b <- Biostrings::pairwiseAlignment(a[2:length(a)], a[1])
+  b <- Biostrings::pairwiseAlignment(a, a[1])
   c <- Biostrings::BStringSet(b)
+  names(c) <- names(a)
 
   message("* Finding consensuses...")
   pwm <- Biostrings::consensusMatrix(c)
@@ -246,5 +247,10 @@ aptly <- function(fasta, cores = 1){
     ggplot2::xlab("Distance from Reference Origin") + ggplot2::ylab("Frequency of Base") +
     ggplot2::labs("fill" = "Base") + ggplot2::theme_bw() + ggplot2::ggtitle(title)
 
-  return(list(table, pwm, string))
+  return(
+    list(
+      "table" = table, "hybrid" = a, "aligned" = c,
+      "pwm" = pwm, "string" = string
+    )
+  )
 }
