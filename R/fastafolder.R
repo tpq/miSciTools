@@ -226,7 +226,7 @@ aptly <- function(fasta, cores = 1){
 
   message("* Aligning pseudo-sequences to reference...")
   a <- Biostrings::DNAStringSet(unlist(out))
-  a <- a[order(width(a), decreasing = TRUE)]
+  a <- a[order(Biostrings::width(a), decreasing = TRUE)]
   b <- Biostrings::pairwiseAlignment(a[2:length(a)], a[1])
   c <- Biostrings::BStringSet(b)
 
