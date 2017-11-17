@@ -154,7 +154,7 @@ fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
 #' @export
 aptly <- function(fasta, cores = 1, select){
 
-  packageCheck(c("seqinr", "LncFinder", "Biostrings", "ggplot2", "reshape2"))
+  packageCheck(c("seqinr", "LncFinder"))
 
   message("* Reading FASTA...")
   Seqs <- seqinr::read.fasta(file = fasta)
@@ -209,52 +209,54 @@ aptly <- function(fasta, cores = 1, select){
 
   table <- do.call("rbind", out)
   if(!is.null(names(SS.seq_2))) rownames(table) <- names(SS.seq_2)
+  write.csv(table, file = "summary.csv")
+  return(table)
 
-  message("* Creating hybrid pseudo-sequences...")
-  out <- lapply(SS.seq_2, function(SEQobj){
-
-    s1 <- toupper(SEQobj[1])
-    s1 <- gsub("U", "T", s1)
-    s1 <- strsplit(s1, "")[[1]]
-
-    s2 <- gsub("\\(", ".", SEQobj[2])
-    s2 <- gsub("\\)", "+", s2)
-    s2 <- strsplit(s2, "")[[1]]
-
-    dots <- gregexpr("\\.", SEQobj[2])[[1]]
-
-    s2[dots] <- s1[dots]
-    return(paste0(s2, collapse = ""))
-  })
-
-  message("* Aligning pseudo-sequences to reference...")
-  a <- Biostrings::DNAStringSet(unlist(out))
-  a <- a[order(Biostrings::width(a), decreasing = TRUE)]
-  b <- Biostrings::pairwiseAlignment(a, a[1])
-  c <- Biostrings::BStringSet(b)
-  names(c) <- names(a)
-
-  message("* Finding consensuses...")
-  pwm <- Biostrings::consensusMatrix(c)
-  pwm <- pwm[c("A", "T", "G", "C", ".", "+"), ]
-  rownames(pwm) <- c("A", "T", "G", "C", "(", ")")
-
-  string <- Biostrings::consensusString(c)
-  string <- gsub("\\.", "(", string)
-  string <- gsub("\\+", ")", string)
-  string <- gsub("\\?", "N", string)
-  title <- paste0("Visualization of Consensus Sequence: [", string, "]")
-
-  g <- ggplot2::ggplot(reshape2::melt(pwm), ggplot2::aes(x = Var2, y = value, fill = Var1)) +
-    ggplot2::geom_bar(stat = "identity") + ggplot2::scale_fill_brewer(palette = "Set2") +
-    ggplot2::xlab("Distance from Reference Origin") + ggplot2::ylab("Frequency of Base") +
-    ggplot2::labs("fill" = "Base") + ggplot2::theme_bw() + ggplot2::ggtitle(title)
-  plot(g)
-
-  return(
-    list(
-      "table" = table, "hybrid" = a, "aligned" = c,
-      "g" = g, "pwm" = pwm, "string" = string
-    )
-  )
+  # message("* Creating hybrid pseudo-sequences...")
+  # out <- lapply(SS.seq_2, function(SEQobj){
+  #
+  #   s1 <- toupper(SEQobj[1])
+  #   s1 <- gsub("U", "T", s1)
+  #   s1 <- strsplit(s1, "")[[1]]
+  #
+  #   s2 <- gsub("\\(", ".", SEQobj[2])
+  #   s2 <- gsub("\\)", "+", s2)
+  #   s2 <- strsplit(s2, "")[[1]]
+  #
+  #   dots <- gregexpr("\\.", SEQobj[2])[[1]]
+  #
+  #   s2[dots] <- s1[dots]
+  #   return(paste0(s2, collapse = ""))
+  # })
+  #
+  # message("* Aligning pseudo-sequences to reference...")
+  # a <- Biostrings::DNAStringSet(unlist(out))
+  # a <- a[order(Biostrings::width(a), decreasing = TRUE)]
+  # b <- Biostrings::pairwiseAlignment(a, a[1])
+  # c <- Biostrings::BStringSet(b)
+  # names(c) <- names(a)
+  #
+  # message("* Finding consensuses...")
+  # pwm <- Biostrings::consensusMatrix(c)
+  # pwm <- pwm[c("A", "T", "G", "C", ".", "+"), ]
+  # rownames(pwm) <- c("A", "T", "G", "C", "(", ")")
+  #
+  # string <- Biostrings::consensusString(c)
+  # string <- gsub("\\.", "(", string)
+  # string <- gsub("\\+", ")", string)
+  # string <- gsub("\\?", "N", string)
+  # title <- paste0("Visualization of Consensus Sequence: [", string, "]")
+  #
+  # g <- ggplot2::ggplot(reshape2::melt(pwm), ggplot2::aes(x = Var2, y = value, fill = Var1)) +
+  #   ggplot2::geom_bar(stat = "identity") + ggplot2::scale_fill_brewer(palette = "Set2") +
+  #   ggplot2::xlab("Distance from Reference Origin") + ggplot2::ylab("Frequency of Base") +
+  #   ggplot2::labs("fill" = "Base") + ggplot2::theme_bw() + ggplot2::ggtitle(title)
+  # plot(g)
+  #
+  # return(
+  #   list(
+  #     "table" = table, "hybrid" = a, "aligned" = c,
+  #     "g" = g, "pwm" = pwm, "string" = string
+  #   )
+  # )
 }
