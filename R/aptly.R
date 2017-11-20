@@ -185,19 +185,37 @@ aptly <- function(fasta, cores = 1, select){
     LagLength <- attr(find, "match.length")[1]
 
     find <- gregexpr(paste0(lopen, pin, ropen), note)[[1]]
-    HairpinTipsTotal <- length(find) # number hairpin tips
-    HairpinTipsLength <- mean(attr(find, "match.length") - 2) # mean hairpin tip length
-    HairpinTipsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin tip
+    if(sum(find != -1) > 0){
+      HairpinTipsTotal <- length(find) # number hairpin tips
+      HairpinTipsLength <- mean(attr(find, "match.length") - 2) # mean hairpin tip length
+      HairpinTipsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin tip
+    }else{
+      HairpinTipsTotal <- 0
+      HairpinTipsLength <- 0
+      HairpinTipsPercent <- 0
+    }
 
     find <- gregexpr(paste0(lopen, lcont, pin, rcont, ropen), note)[[1]]
-    HairpinsTotal <- length(find) # number hairpins
-    HairpinsLength <- mean(attr(find, "match.length") - 2) # mean hairpin length
-    HairpinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin
+    if(sum(find != -1) > 0){
+      HairpinsTotal <- length(find) # number hairpins
+      HairpinsLength <- mean(attr(find, "match.length") - 2) # mean hairpin length
+      HairpinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin
+    }else{
+      HairpinsTotal <- 0
+      HairpinsLength <- 0
+      HairpinsPercent <- 0
+    }
 
     find <- gregexpr(paste0(lonly, pin, lonly, pin, ronly, pin, ronly), note)[[1]]
-    BulgedPinsTotal <- length(find) # number pre-hairpin bulges
-    BulgedPinsLength <- mean(attr(find, "match.length") - 2) # mean pre-hairpin bulge length
-    BulgedPinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % pre-hairpin bulges
+    if(sum(find != -1) > 0){
+      BulgedPinsTotal <- length(find) # number pre-hairpin bulges
+      BulgedPinsLength <- mean(attr(find, "match.length") - 2) # mean pre-hairpin bulge length
+      BulgedPinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % pre-hairpin bulges
+    }else{
+      BulgedPinsTotal <- 0
+      BulgedPinsLength <- 0
+      BulgedPinsPercent <- 0
+    }
 
     data.frame(
       LeadLength, LagLength,

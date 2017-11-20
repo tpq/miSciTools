@@ -2,6 +2,7 @@
 ---------------------
 * Implemented `aptly` function
     * Procedurally characterizes RNA sequences based on secondary structure
+    * Fixed bug caused by absence of any secondary structure
 
 ## miSciTools 1.0.6
 ---------------------
