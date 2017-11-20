@@ -10,9 +10,8 @@ packageCheck <- function(packages){
   for(package in packages){
 
     if (!requireNamespace(package, quietly = TRUE)) {
-      stop("Uh oh! This propr method depends on ", package,
-           "! ", "Try running: install.packages('", package,
-           "')")
+      stop("Uh oh! This method depends on ", package,
+           ". ", "Please instal.")
     }
   }
 
