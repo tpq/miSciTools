@@ -146,13 +146,15 @@ fastafolder <- function(fasta, rmTails = FALSE, estimateConvergence = FALSE,
 #' This function requires a multi-sequence FASTA file as input. It also depends on the UNIX
 #'  programs RNAfold and imagemagick. Install RNAfold through the ViennaRNA package.
 #'
-#' @inheritParams fastafolder
+#' @param fasta A multi-sequence FASTA file.
+#' @param RNAfold The commandline program to call. Append RNAfold arguments here.
+#' @param cores The number of cores to use.
 #' @param select A numeric or character vector. Selects which sequences from
 #'  the multi-sequence FASTA file to include in the analysis.
 #' @return A list of characteristics.
 #'
 #' @export
-aptly <- function(fasta, cores = 1, select){
+aptly <- function(fasta, RNAfold = "RNAfold", cores = 1, select){
 
   packageCheck(c("seqinr", "LncFinder"))
 
@@ -161,7 +163,7 @@ aptly <- function(fasta, cores = 1, select){
   if(!missing(select)) Seqs <- Seqs[select]
 
   message("* Folding RNA...")
-  SS.seq_2 <- LncFinder::run_RNAfold(Seqs, RNAfold.path = "RNAfold", parallel.cores = cores)
+  SS.seq_2 <- LncFinder::run_RNAfold(Seqs, RNAfold.path = RNAfold, parallel.cores = cores)
   system("rm rna.ps")
 
   # Define regex terms
@@ -187,47 +189,71 @@ aptly <- function(fasta, cores = 1, select){
     find <- gregexpr(paste0(lopen, pin, ropen), note)[[1]]
     if(sum(find != -1) > 0){
       HairpinTipsTotal <- length(find) # number hairpin tips
-      HairpinTipsLength <- mean(attr(find, "match.length") - 2) # mean hairpin tip length
-      HairpinTipsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin tip
+      HairpinTipsLengthMean <- mean(attr(find, "match.length") - 2) # mean hairpin tip length
+      HairpinTipsLengthTotal <- sum(attr(find, "match.length") - 2) # total hairpin tip
     }else{
       HairpinTipsTotal <- 0
-      HairpinTipsLength <- 0
-      HairpinTipsPercent <- 0
+      HairpinTipsLengthMean <- 0
+      HairpinTipsLengthTotal <- 0
     }
 
     find <- gregexpr(paste0(lopen, lcont, pin, rcont, ropen), note)[[1]]
     if(sum(find != -1) > 0){
       HairpinsTotal <- length(find) # number hairpins
-      HairpinsLength <- mean(attr(find, "match.length") - 2) # mean hairpin length
-      HairpinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % hairpin
+      HairpinsLengthMean <- mean(attr(find, "match.length") - 2) # mean hairpin length
+      HairpinsLengthTotal <- sum(attr(find, "match.length") - 2) # total hairpin
     }else{
       HairpinsTotal <- 0
-      HairpinsLength <- 0
-      HairpinsPercent <- 0
+      HairpinsLengthMean <- 0
+      HairpinsLengthTotal <- 0
+    }
+
+    find <- gregexpr(paste0(lopen, pin, lopen), note)[[1]]
+    if(sum(find != -1) > 0){
+      LeftBulgesTotal <- length(find) # number hairpins
+      LeftBulgesLengthMean <- mean(attr(find, "match.length") - 2) # mean bulge length
+      LeftBulgesLengthTotal <- sum(attr(find, "match.length") - 2) # total bulge
+    }else{
+      LeftBulgesTotal <- 0
+      LeftBulgesLengthMean <- 0
+      LeftBulgesLengthTotal <- 0
+    }
+
+    find <- gregexpr(paste0(ropen, pin, ropen), note)[[1]]
+    if(sum(find != -1) > 0){
+      RightBulgesTotal <- length(find) # number hairpins
+      RightBulgesLengthMean <- mean(attr(find, "match.length") - 2) # mean bulge length
+      RightBulgesLengthTotal <- sum(attr(find, "match.length") - 2) # total bulge
+    }else{
+      RightBulgesTotal <- 0
+      RightBulgesLengthMean <- 0
+      RightBulgesLengthTotal <- 0
     }
 
     find <- gregexpr(paste0(lonly, pin, lonly, pin, ronly, pin, ronly), note)[[1]]
     if(sum(find != -1) > 0){
       BulgedPinsTotal <- length(find) # number pre-hairpin bulges
-      BulgedPinsLength <- mean(attr(find, "match.length") - 2) # mean pre-hairpin bulge length
-      BulgedPinsPercent <- sum(attr(find, "match.length") - 2) / nchar(note) # % pre-hairpin bulges
+      BulgedPinsLengthMean <- mean(attr(find, "match.length") - 2) # mean pre-hairpin bulge length
+      BulgedPinsLengthTotal <- sum(attr(find, "match.length") - 2) # pre-hairpin bulges
     }else{
       BulgedPinsTotal <- 0
-      BulgedPinsLength <- 0
-      BulgedPinsPercent <- 0
+      BulgedPinsLengthMean <- 0
+      BulgedPinsLengthTotal <- 0
     }
 
     data.frame(
       LeadLength, LagLength,
-      HairpinTipsTotal, HairpinTipsLength, HairpinTipsPercent,
-      HairpinsTotal, HairpinsLength, HairpinsPercent,
-      BulgedPinsTotal, BulgedPinsLength, BulgedPinsPercent
+      HairpinTipsTotal, HairpinTipsLengthMean, HairpinTipsLengthTotal,
+      HairpinsTotal, HairpinsLengthMean, HairpinsLengthTotal,
+      LeftBulgesTotal, LeftBulgesLengthMean, LeftBulgesLengthTotal,
+      RightBulgesTotal, RightBulgesLengthMean, RightBulgesLengthTotal,
+      BulgedPinsTotal, BulgedPinsLengthMean, BulgedPinsLengthTotal
     )
   })
 
   table <- do.call("rbind", out)
   if(!is.null(names(SS.seq_2))) rownames(table) <- names(SS.seq_2)
-  write.csv(table, file = "summary.csv")
+  write.csv(table, file = paste0(RNAfold, "-summary.csv"))
   return(table)
 
   # message("* Creating hybrid pseudo-sequences...")

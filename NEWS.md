@@ -1,3 +1,10 @@
+## miSciTools 1.0.8
+---------------------
+* Revise `aptly` function
+    * Delineate mean and total lengths for found structures
+    * Allow user to append additional RNAfold arguments
+    * Characterize left and right bulges
+
 ## miSciTools 1.0.7
 ---------------------
 * Implemented `aptly` function

@@ -4,10 +4,12 @@
 \alias{aptly}
 \title{Aptly Characterize Aptamers}
 \usage{
-aptly(fasta, cores = 1, select)
+aptly(fasta, RNAfold = "RNAfold", cores = 1, select)
 }
 \arguments{
 \item{fasta}{A multi-sequence FASTA file.}
+
+\item{RNAfold}{The commandline program to call. Append RNAfold arguments here.}
 
 \item{cores}{The number of cores to use.}
 
