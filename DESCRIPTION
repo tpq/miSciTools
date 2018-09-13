@@ -1,6 +1,6 @@
 Package: miSciTools
 Title: Miscellaneous Science Tools for Bioinformatic Analysis
-Version: 1.0.8
+Version: 1.0.9
 URL: http://github.com/tpq/miSciTools
 BugReports: http://github.com/tpq/miSciTools/issues
 Authors@R: c(
@@ -10,7 +10,8 @@ Description: Simplifies miscellaneous and cumbersome bioinformatic pipelines.
 License: GPL-2
 LazyData: TRUE
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
+Encoding: UTF-8
 Depends:
     R (>= 3.2.2)
 Suggests:
@@ -18,14 +19,13 @@ Suggests:
     Biostrings,
     biovizBase,
     Category,
+    DESeq2,
     devtools,
     digest,
     doParallel,
     edgeR,
     foreach,
     GenomeInfoDb,
-    GeneR,
-    GeneRfold,
     ggplot2,
     grid,
     GSEABase,

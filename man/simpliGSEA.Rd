@@ -4,7 +4,8 @@
 \alias{simpliGSEA}
 \title{Perform Gene Set Enrichment Analysis}
 \usage{
-simpliGSEA(genes, universe, annot.genes, annot.terms, alternative = "greater")
+simpliGSEA(genes, universe, annot.genes, annot.terms,
+  alternative = "greater")
 }
 \arguments{
 \item{genes}{A character vector. The gene IDs of interest.}

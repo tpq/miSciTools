@@ -1,3 +1,10 @@
+## miSciTools 1.0.9
+---------------------
+* Add methods
+    * New `quick.DESeq2` performs formula-based differential expression analysis
+    * New `wide2long` and `long2wide` functions convert between data styles
+    * New `tttest` function to make t-test tables from long data
+
 ## miSciTools 1.0.8
 ---------------------
 * Revise `aptly` function
