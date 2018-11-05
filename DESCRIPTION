@@ -1,6 +1,6 @@
 Package: miSciTools
 Title: Miscellaneous Science Tools for Bioinformatic Analysis
-Version: 1.0.9
+Version: 1.1.0
 URL: http://github.com/tpq/miSciTools
 BugReports: http://github.com/tpq/miSciTools/issues
 Authors@R: c(
@@ -36,10 +36,12 @@ Suggests:
     magick,
     parallel,
     R.utils,
+    recount,
     reshape2,
     rmarkdown,
     RMySQL,
     RSQLite,
     rtracklayer,
+    SummarizedExperiment,
     seqinr,
     utils

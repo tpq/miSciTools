@@ -1,3 +1,8 @@
+## miSciTools 1.1.0
+---------------------
+* Add methods
+    * New `getRecount` retrieves data from recount2 server
+
 ## miSciTools 1.0.9
 ---------------------
 * Add methods
