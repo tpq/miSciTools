@@ -4,10 +4,13 @@
 \alias{getRecount}
 \title{Get recount2 Data}
 \usage{
-getRecount(ID)
+getRecount(ID, characteristic = 1)
 }
 \arguments{
 \item{ID}{A character string. The recount2 ID.}
+
+\item{characteristic}{An integer. The characteristic
+used to split the data.}
 }
 \value{
 Saves data to working directory.

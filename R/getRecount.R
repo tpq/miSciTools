@@ -3,11 +3,15 @@
 #' This function retrieves data from the recount2 server.
 #'
 #' @param ID A character string. The recount2 ID.
+#' @param characteristic An integer. The characteristic
+#'  used to split the data.
 #'
 #' @return Saves data to working directory.
 #'
 #' @export
-getRecount <- function(ID){
+getRecount <- function(ID, characteristic = 1){
+
+  catchwd <- getwd()
 
   miSciTools::packageCheck("recount")
   miSciTools::packageCheck("SummarizedExperiment")
@@ -31,7 +35,7 @@ getRecount <- function(ID){
   colnames(colData(rse_gene))
   annot <- colData(rse_gene)
   projects <- do.call("rbind", lapply(annot$characteristics, t))
-  projects <- projects[,1]
+  projects <- projects[, characteristic]
   project <- table(projects)
   if(!identical(sum(project), nrow(colData(rse_gene)))) stop()
   prj <- names(project)
@@ -68,4 +72,6 @@ getRecount <- function(ID){
 
   # Add miSciTools note
   utils::write.table("see miSciTools::getRecount", "0-make/0-make.R")
+
+  setwd(catchwd)
 }
