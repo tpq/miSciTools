@@ -4,7 +4,7 @@
 \alias{getRecount}
 \title{Get recount2 Data}
 \usage{
-getRecount(ID, characteristic = 1)
+getRecount(ID, characteristic)
 }
 \arguments{
 \item{ID}{A character string. The recount2 ID.}

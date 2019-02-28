@@ -1,3 +1,8 @@
+## miSciTools 1.1.1
+---------------------
+* Revise `getRecount` function
+    * Make `getRecount` more reliable
+
 ## miSciTools 1.1.0
 ---------------------
 * Add methods
