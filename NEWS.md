@@ -1,3 +1,12 @@
+## miSciTools 1.1.2
+---------------------
+* Add `fs` methods
+    * New `fsPropd` module selects features using `propr::propd`
+    * New `fsPRA` module selects features using `propr::pra`
+* Add methods
+    * New `rda.reconstruct` reconstructs data from RDA object
+    * New `wwtest` resembles `tttest` but non-parametric
+
 ## miSciTools 1.1.1
 ---------------------
 * Revise `getRecount` function
