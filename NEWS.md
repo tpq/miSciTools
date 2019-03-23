@@ -1,3 +1,8 @@
+## miSciTools 1.1.3
+---------------------
+* Add `fs` methods
+    * Migrate `fsPathClassRFE` and `fsSelbal` from `exprso`
+
 ## miSciTools 1.1.2
 ---------------------
 * Add `fs` methods
