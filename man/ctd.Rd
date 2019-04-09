@@ -5,7 +5,7 @@
 \alias{ctd}
 \title{Comparative Toxicogenomics Database}
 \format{A \code{data.frame} with >1,000,000 chemical-gene interactions (rows)
- and 11 annotations (columns). Retrieved on August 7, 2017.}
+ and 11 annotations (columns). Retrieved on April 9, 2019.}
 \source{
 \url{http://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}
 }

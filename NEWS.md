@@ -1,3 +1,9 @@
+## miSciTools 1.1.4
+---------------------
+* Update data
+    * Add `ctd.wide` data which explodes "InteractionActions" column
+    * Update `ctd` data
+
 ## miSciTools 1.1.3
 ---------------------
 * Add `fs` methods

@@ -5,7 +5,7 @@
 #'  source of this knowledge and the type of interaction observed.
 #'
 #' @format A \code{data.frame} with >1,000,000 chemical-gene interactions (rows)
-#'  and 11 annotations (columns). Retrieved on August 7, 2017.
+#'  and 11 annotations (columns). Retrieved on April 9, 2019.
 #'
 #' @source \url{http://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}
 #'
@@ -25,6 +25,19 @@
 #' head(sort(p.adjust(pvals)))
 #' }
 "ctd"
+
+#' Comparative Toxicogenomics Database (Wide Format)
+#'
+#' Unlike \code{data(ctd)}, this object explodes the "InteractionActions"
+#'  column into multiple columns, each describing an association type.
+#'
+#' @format A \code{data.frame} with >1,000,000 chemical-gene interactions (rows)
+#'  and 11 annotations (columns). Retrieved on April 9, 2019.
+#'
+#' @source \url{http://ctdbase.org/reports/CTD_chem_gene_ixns.csv.gz}
+#'
+#' @usage data(ctd.wide)
+"ctd.wide"
 
 #' KEGGREST Database
 #'
