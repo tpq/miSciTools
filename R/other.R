@@ -11,7 +11,7 @@ packageCheck <- function(packages){
 
     if (!requireNamespace(package, quietly = TRUE)) {
       stop("Uh oh! This method depends on ", package,
-           ". ", "Please instal.")
+           ". ", "Please install.")
     }
   }
 
