@@ -1,3 +1,7 @@
+## miSciTools 1.1.5
+---------------------
+* Add `fig` methods
+
 ## miSciTools 1.1.4
 ---------------------
 * Update data
@@ -105,12 +109,6 @@
     * Sends a system command through qsub
 * Implemented `insert` function
     * Inserts a new line of text into an existing file
-* Implemented `cache.key` function
-    * Generates a unique hash key from a list of objects
-* Implemented `cache.save` function
-    * Saves a value as raw to an SQLite database
-* Implemented `cache.load` function
-    * Loads a value as raw from an SQLite database
 * Added `ctd` data
     * Details chemical-gene interactions
 * Added `linc2go` data

@@ -1,6 +1,6 @@
 Package: miSciTools
 Title: Miscellaneous Science Tools for Bioinformatic Analysis
-Version: 1.1.4
+Version: 1.1.5
 URL: http://github.com/tpq/miSciTools
 BugReports: http://github.com/tpq/miSciTools/issues
 Authors@R: c(
@@ -12,6 +12,14 @@ LazyData: TRUE
 VignetteBuilder: knitr
 RoxygenNote: 6.1.0
 Encoding: UTF-8
+Imports:
+    ggplot2,
+    graphics,
+    grDevices,
+    grid,
+    gridExtra,
+    stats,
+    viridis
 Depends:
     R (>= 3.2.2)
 Suggests:
@@ -28,12 +36,12 @@ Suggests:
     exprso,
     foreach,
     GenomeInfoDb,
-    ggplot2,
-    grid,
+    ggraph,
     GSEABase,
     GOstats,
     igraph,
     knitr,
+    lattice,
     LncFinder,
     magick,
     parallel,
