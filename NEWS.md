@@ -1,3 +1,10 @@
+## miSciTools 1.1.6
+---------------------
+* Update `quick.edgeR`
+    * No longer removes tags with FDR > 0.05
+* Update `demand`
+    * Now uses `BiocManager::install()`
+
 ## miSciTools 1.1.5
 ---------------------
 * Add `fig` methods

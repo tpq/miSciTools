@@ -21,7 +21,7 @@ quick.edgeR <- function(counts, group){
   tt <- as.data.frame(edgeR::topTags(et, n = nrow(et)))
   tt.fdr <- tt[tt$FDR < .05,]
   edgeR::plotSmear(et, de.tags = rownames(tt.fdr), cex = 0.5)
-  return(tt.fdr)
+  return(tt)
 }
 
 #' Run DESeq2 LRT or Wald Test
