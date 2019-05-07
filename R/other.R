@@ -104,7 +104,7 @@ demand <- function(packages){
       cat("Looking for", package, "at Bioconductor...\n")
       source("https://bioconductor.org/biocLite.R")
       suppressWarnings(
-        biocLite(package, suppressUpdates = TRUE)
+        BiocManager::install(package, update = FALSE)
       )
     }
 
