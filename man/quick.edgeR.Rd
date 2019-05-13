@@ -4,12 +4,15 @@
 \alias{quick.edgeR}
 \title{Run edgeR Exact Test}
 \usage{
-quick.edgeR(counts, group)
+quick.edgeR(counts, group, norm.method = "TMM")
 }
 \arguments{
 \item{counts}{A data.frame of raw sequence counts.}
 
 \item{group}{A character vector of group labels.}
+
+\item{norm.method}{A string. The method used to normalize data.
+Argument passed to \code{edgeR::calcNormFactors}.}
 }
 \description{
 Run edgeR Exact Test for differential expression analysis.

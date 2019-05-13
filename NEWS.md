@@ -1,3 +1,15 @@
+## miSciTools 1.1.7
+---------------------
+* New helper functions
+    * New `test.lequal` tests whether all elements in a list are equal
+    * New `randSamps` randomly assigns class labels
+    * New `randBoots` indexes bootstraps of samples
+    * New `randFolds` indexes folds of samples
+* Update `quick.edgeR`
+    * New `norm.method` argument selects normalization method
+* Update `quick.DESeq2`
+    * Add `drop = FALSE` to avoid error
+
 ## miSciTools 1.1.6
 ---------------------
 * Update `quick.edgeR`
