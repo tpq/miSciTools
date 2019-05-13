@@ -10,8 +10,8 @@ packageCheck <- function(packages){
   for(package in packages){
 
     if (!requireNamespace(package, quietly = TRUE)) {
-      stop("Uh oh! This method depends on ", package,
-           ". ", "Please install.")
+      stop("\nUh oh! This method depends on library(", package,
+           "). ", "\nTry miSciTools::demand(\"", package, "\").")
     }
   }
 

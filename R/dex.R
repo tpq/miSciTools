@@ -4,9 +4,11 @@
 #'
 #' @param counts A data.frame of raw sequence counts.
 #' @param group A character vector of group labels.
+#' @param norm.method A string. The method used to normalize data.
+#'  Argument passed to \code{edgeR::calcNormFactors}.
 #'
 #' @export
-quick.edgeR <- function(counts, group){
+quick.edgeR <- function(counts, group, norm.method = "TMM"){
 
   if(!requireNamespace("edgeR", quietly = TRUE)){
     stop("Uh oh! This method depends on edgeR. ",
@@ -14,7 +16,7 @@ quick.edgeR <- function(counts, group){
   }
 
   y <- edgeR::DGEList(counts = counts, group = group)
-  y <- edgeR::calcNormFactors(y)
+  y <- edgeR::calcNormFactors(y, method = norm.method)
   y <- edgeR::estimateCommonDisp(y)
   y <- edgeR::estimateTagwiseDisp(y)
   et <- edgeR::exactTest(y)
@@ -54,7 +56,7 @@ quick.DESeq2 <- function(x, y, formula, test = "Wald"){
 
   # Build DESeq2 object
   dds <- DESeq2::DESeqDataSetFromMatrix(countData = t(x[keep,] + 1),
-                                        colData = y[keep,],
+                                        colData = y[keep,,drop=FALSE],
                                         design = formula)
 
   # Run DESeq2 analysis
