@@ -1,3 +1,12 @@
+## miSciTools 1.1.8
+---------------------
+* New helper functions
+    * New `replaceNA` function replaces all NAs in vector or data.frame
+    * New `remove_geom` removes a GEOM layer from a `ggplot` object
+    * New `quick.anova` runs an ANOVA using f(x, y) syntax
+* Update `fig` methods
+    * New `dir` argument allows user to set output directory
+
 ## miSciTools 1.1.7
 ---------------------
 * New helper functions
