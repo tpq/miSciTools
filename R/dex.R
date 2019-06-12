@@ -85,3 +85,19 @@ quick.DESeq2 <- function(x, y, formula, test = "Wald"){
   print(sum(res$padj < .05))
   as.data.frame(res)
 }
+
+#' Run Quick ANOVA
+#'
+#' This function runs an ANOVA using f(x, y) syntax instead of
+#'  f(x~y) syntax.
+#'
+#' @param x A numeric vector.
+#' @param y A factor vector.
+#' @return A p-value.
+#' @export
+quick.anova <- function(x, y){
+
+  df <- data.frame(x, "y" = factor(y))
+  a <- stats::anova(stats::lm(x ~ y, df))
+  a$`Pr(>F)`[1]
+}
