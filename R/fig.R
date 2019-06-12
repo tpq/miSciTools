@@ -18,6 +18,7 @@ NULL
 #'
 #' @param plot The figure.
 #' @param file A string. The file to save.
+#' @param dir A string. The directory.
 #' @param width,height The figure dimensions.
 #' @param res The figure resolution.
 #' @examples
@@ -25,12 +26,15 @@ NULL
 #' fig.save(plot(1:5, 1:5), file = "Figure1")
 #' }
 #' @export
-fig.save <- function(plot, file = "fig", width = 5, height = 5, res = 600){
+fig.save <- function(plot, file = "fig", dir = getwd(), width = 5, height = 5, res = 600){
 
+  oldwd <- getwd()
+  setwd(dir)
   grDevices::png(file %+% ".png", width = width, height = height,
                  res = res, units = "in")
   plot
   grDevices::dev.off()
+  setwd(oldwd)
 }
 
 #' Vertical Join Figures
@@ -42,12 +46,15 @@ fig.save <- function(plot, file = "fig", width = 5, height = 5, res = 600){
 #' fig.cbind(plot(1:5, 1:5), plot(1:5, 5:1), file = "Figure2")
 #' }
 #' @export
-fig.cbind <- function(plot1, plot2, file = "fig", width = 5, height = 5, res = 600){
+fig.cbind <- function(plot1, plot2, file = "fig", dir = getwd(), width = 5, height = 5, res = 600){
 
+  oldwd <- getwd()
+  setwd(dir)
   fig.save(plot1, file = "out9000-temp1" %+% file, width = width, height = height, res = res)
   fig.save(plot2, file = "out9000-temp2" %+% file, width = width, height = height, res = res)
   system("convert +append out9000-temp1* out9000-temp2* " %+% file %+% ".png")
   system("rm out9000-temp*")
+  setwd(oldwd)
 }
 
 #' Horizontal Join Figures
@@ -59,12 +66,15 @@ fig.cbind <- function(plot1, plot2, file = "fig", width = 5, height = 5, res = 6
 #' fig.rbind(plot(1:5, 1:5), plot(1:5, 5:1), file = "Figure3")
 #' }
 #' @export
-fig.rbind <- function(plot1, plot2, file = "fig", width = 5, height = 5, res = 600){
+fig.rbind <- function(plot1, plot2, file = "fig", dir = getwd(), width = 5, height = 5, res = 600){
 
+  oldwd <- getwd()
+  setwd(dir)
   fig.save(plot1, file = "out9000-temp1" %+% file, width = width, height = height, res = res)
   fig.save(plot2, file = "out9000-temp2" %+% file, width = width, height = height, res = res)
   system("convert -append out9000-temp1* out9000-temp2* " %+% file %+% ".png")
   system("rm out9000-temp*")
+  setwd(oldwd)
 }
 
 #' Tile Join Figures
@@ -77,14 +87,18 @@ fig.rbind <- function(plot1, plot2, file = "fig", width = 5, height = 5, res = 6
 #' fig.tile(plot(1:5), plot(6:10), plot(11:15), tile = "1x3", file = "Figure 4")
 #' }
 #' @export
-fig.tile <- function(..., tile = "2x2", file = "fig", width = 5, height = 5, res = 600){
+fig.tile <- function(..., tile = "2x2", file = "fig", dir = getwd(), width = 5, height = 5, res = 600){
 
+  oldwd <- getwd()
+  setwd(dir)
   args <- as.list(substitute(list(...)))[-1]
   for(i in 1:length(args)){
     fig.save(eval(args[[i]]), file = "out9000-temp" %+% i %+% file,
              width = width, height = height, res = res)
   }
   system("montage out9000-temp* -tile " %+% tile %+% " -mode concatenate " %+% file %+% ".png")
+  system("rm out9000-temp*")
+  setwd(oldwd)
 }
 
 #' Make Figure from Table

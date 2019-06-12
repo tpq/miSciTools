@@ -4,12 +4,15 @@
 \alias{fig.save}
 \title{Save Figure}
 \usage{
-fig.save(plot, file = "fig", width = 5, height = 5, res = 600)
+fig.save(plot, file = "fig", dir = getwd(), width = 5, height = 5,
+  res = 600)
 }
 \arguments{
 \item{plot}{The figure.}
 
 \item{file}{A string. The file to save.}
+
+\item{dir}{A string. The directory.}
 
 \item{width, height}{The figure dimensions.}
 

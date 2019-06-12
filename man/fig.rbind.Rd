@@ -4,13 +4,15 @@
 \alias{fig.rbind}
 \title{Horizontal Join Figures}
 \usage{
-fig.rbind(plot1, plot2, file = "fig", width = 5, height = 5,
-  res = 600)
+fig.rbind(plot1, plot2, file = "fig", dir = getwd(), width = 5,
+  height = 5, res = 600)
 }
 \arguments{
 \item{plot1, plot2}{The figures.}
 
 \item{file}{A string. The file to save.}
+
+\item{dir}{A string. The directory.}
 
 \item{width}{The figure dimensions.}
 

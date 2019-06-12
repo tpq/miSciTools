@@ -4,8 +4,8 @@
 \alias{fig.tile}
 \title{Tile Join Figures}
 \usage{
-fig.tile(..., tile = "2x2", file = "fig", width = 5, height = 5,
-  res = 600)
+fig.tile(..., tile = "2x2", file = "fig", dir = getwd(), width = 5,
+  height = 5, res = 600)
 }
 \arguments{
 \item{...}{The figures.}
@@ -13,6 +13,8 @@ fig.tile(..., tile = "2x2", file = "fig", width = 5, height = 5,
 \item{tile}{A string. Describes how to tile the figures (e.g., "1x3").}
 
 \item{file}{A string. The file to save.}
+
+\item{dir}{A string. The directory.}
 
 \item{width}{The figure dimensions.}
 
