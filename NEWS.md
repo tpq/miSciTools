@@ -1,3 +1,11 @@
+## miSciTools 1.1.9
+---------------------
+* New helper functions
+    * New `ensg2hgnc` and `hgnc2ensg` functions convert genes to genes
+    * New `ensg2go` and `hgnc2go` functions convert genes to GO IDs
+    * New `go2term` function converts GO IDs to GO terms
+    * New `hgnc2liger` function runs `liger` GSEA
+
 ## miSciTools 1.1.8
 ---------------------
 * New helper functions

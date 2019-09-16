@@ -85,3 +85,108 @@ simpliGSEA <- function(genes, universe, annot.genes, annot.terms, alternative = 
 
   return(enrichment)
 }
+
+#' Quickly Run a Gene Set Enrichment
+#'
+#' @param hgnc A vector of gene symbols.
+#' @param score A vector of scores.
+#' @param minK An integer. The minimum number of nodes
+#'  to which a concept maps to be included in final table.
+#'  Skip with minK = 0.
+#' @return A \code{data.frame} of results.
+#' @export
+hgnc2liger <- function(hgnc, score, minK = 10){
+
+  # Load Liger and drop genes that are not in universe
+  uni <- liger::org.Hs.GO2Symbol.list
+  universe <- unique(unlist(uni))
+  symsub <- hgnc[hgnc %in% universe]
+  scored <- score[hgnc %in% universe]
+  names(scored) <- symsub
+
+  # Don't test overlap unless GO term describes at least K genes
+  sizeOfSet <- sapply(uni, function(l) sum(l %in% names(scored)))
+  smallList <- uni[sizeOfSet >= minK]
+  runs <- lapply(smallList,
+                 function(GeneSet){
+                   liger::gsea(values = scored, geneset = GeneSet)
+                 })
+
+  # Summarize
+  enrich <- data.frame(
+    "pval" = unlist(runs),
+    "padjust" = stats::p.adjust(unlist(runs)),
+    "size" = sapply(smallList, length),
+    "GO" = names(runs),
+    "Term" = go2term(names(runs))
+  )
+}
+
+#' Convert GO to Terms
+#'
+#' @param go A character vector.
+#' @return A character vector.
+#' @export
+go2term <- function(go){
+
+  if(class(go) == "factor") go <- as.character(go)
+  goterms <- AnnotationDbi::Term(GO.db::GOTERM)
+  term <- goterms[go]
+  return(term)
+}
+
+#' Convert ENSEMBL to SYMBOL
+#'
+#' @param ensg A character vector.
+#' @return A character vector.
+#' @export
+ensg2hgnc <- function(ensg){
+  db <- org.Hs.eg.db::org.Hs.eg.db
+  lapply(ensg, function(e){
+    AnnotationDbi::select(db, keys = e, columns = "SYMBOL",
+                          keytype = "ENSEMBL")$SYMBOL
+  })
+}
+
+#' Convert SYMBOL to ENSEMBL
+#'
+#' @param hgnc A character vector.
+#' @return A character vector.
+#' @export
+hgnc2ensg <- function(hgnc){
+  db <- org.Hs.eg.db::org.Hs.eg.db
+  lapply(hgnc, function(e){
+    AnnotationDbi::select(db, keys = e, columns = "ENSEMBL",
+                          keytype = "SYMBOL")$ENSEMBL
+  })
+}
+
+#' Convert ENSEMBL to GO
+#'
+#' @param ensg A character vector.
+#' @return A character vector.
+#' @export
+ensg2go <- function(ensg){
+  db <- org.Hs.eg.db::org.Hs.eg.db
+  lapply(ensg, function(e){
+    unique(
+      AnnotationDbi::select(db, keys = e, columns = "GO",
+                            keytype = "ENSEMBL")$GO
+    )
+  })
+}
+
+#' Convert SYMBOL to GO
+#'
+#' @param hgnc A character vector.
+#' @return A character vector.
+#' @export
+hgnc2go <- function(hgnc){
+  db <- org.Hs.eg.db::org.Hs.eg.db
+  lapply(hgnc, function(e){
+    unique(
+      AnnotationDbi::select(db, keys = e, columns = "GO",
+                            keytype = "SYMBOL")$GO
+    )
+  })
+}

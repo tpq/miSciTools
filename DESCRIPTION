@@ -1,6 +1,6 @@
 Package: miSciTools
 Title: Miscellaneous Science Tools for Bioinformatic Analysis
-Version: 1.1.8
+Version: 1.1.9
 URL: http://github.com/tpq/miSciTools
 BugReports: http://github.com/tpq/miSciTools/issues
 Authors@R: c(
@@ -39,12 +39,15 @@ Suggests:
     foreach,
     GenomeInfoDb,
     GSEABase,
+    GO.db,
     GOstats,
     igraph,
     knitr,
     lattice,
+    liger,
     LncFinder,
     magick,
+    org.Hs.eg.db,
     parallel,
     pathClass,
     plyr,
